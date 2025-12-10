@@ -1,0 +1,40 @@
+# ---------------------------------
+# 1. Dependencies (Crucial)
+# ---------------------------------
+# Ignores the massive node_modules folders in both client and server
+node_modules/
+
+yarn.lock         # Optional: Same as above
+
+# ---------------------------------
+# 2. Security & Secrets (VERY IMPORTANT)
+# ---------------------------------
+# Never push your database passwords or API keys
+.env
+.env.local
+.env.*.local
+server/.env
+client/.env
+
+# ---------------------------------
+# 3. Production Build Outputs
+# ---------------------------------
+# Ignores the "dist" or "build" folders created when you run 'npm run build'
+dist/
+build/
+client/dist/
+client/build/
+
+# ---------------------------------
+# 4. Logs & Debugging
+# ---------------------------------
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+pids
+*.pid
+*.seed
+*.pid.lock
+
