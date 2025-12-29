@@ -160,7 +160,7 @@ function Dashboard() {
 }
 
 // ==========================================
-// 1. DASHBOARD OVERVIEW COMPONENT (WITH ADVANCED FILTERS)
+// 1. DASHBOARD OVERVIEW COMPONENT
 // ==========================================
 const DashboardOverview = ({ editItem, setEditItem }) => {
   const { totalIncome, totalExpenses, totalBalance, incomes, expenses } =
@@ -168,23 +168,24 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
   const [formType, setFormType] = useState("expense");
 
   // --- FILTER STATES ---
-  const [filterType, setFilterType] = useState("all"); // all, income, expense
-  const [sortBy, setSortBy] = useState("newest"); // newest, oldest, highest, lowest
-  const [dateRange, setDateRange] = useState("30"); // 7, 30, 365, all
+  const [filterType, setFilterType] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [dateRange, setDateRange] = useState("30");
+
+  // --- PAGINATION STATE ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   // --- FILTERING LOGIC ---
   const getFilteredTransactions = () => {
-    // 1. Combine all transactions
     let allTransactions = [...incomes, ...expenses];
 
-    // 2. Filter by Type
     if (filterType !== "all") {
       allTransactions = allTransactions.filter(
         (item) => item.type === filterType
       );
     }
 
-    // 3. Filter by Date
     if (dateRange !== "all") {
       const cutoffDate = moment().subtract(parseInt(dateRange), "days");
       allTransactions = allTransactions.filter((item) =>
@@ -192,7 +193,6 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
       );
     }
 
-    // 4. Sort
     allTransactions.sort((a, b) => {
       if (sortBy === "newest") return new Date(b.date) - new Date(a.date);
       if (sortBy === "oldest") return new Date(a.date) - new Date(b.date);
@@ -201,11 +201,17 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
       return 0;
     });
 
-    // Return top 6 results after filtering
-    return allTransactions.slice(0, 6);
+    return allTransactions;
   };
 
   const filteredHistory = getFilteredTransactions();
+
+  // --- PAGINATION SLICING ---
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredHistory.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex flex-col gap-8 pb-10">
@@ -282,14 +288,13 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
         </div>
       </div>
 
-      {/* --- RECENT HISTORY WITH FILTERS --- */}
+      {/* --- RECENT HISTORY --- */}
       <div className="mt-8">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-gray-700">Recent History</h3>
 
-          {/* FILTER BAR UI */}
+          {/* FILTER BAR */}
           <div className="flex gap-2">
-            {/* 1. Date Filter */}
             <select
               className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg p-2 focus:outline-none focus:border-violet-500"
               value={dateRange}
@@ -301,7 +306,6 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
               <option value="all">All Time</option>
             </select>
 
-            {/* 2. Type Filter */}
             <select
               className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg p-2 focus:outline-none focus:border-violet-500"
               value={filterType}
@@ -312,7 +316,6 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
               <option value="expense">Expense</option>
             </select>
 
-            {/* 3. Sort Filter */}
             <select
               className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg p-2 focus:outline-none focus:border-violet-500"
               value={sortBy}
@@ -326,10 +329,10 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
           </div>
         </div>
 
-        {/* LIST RENDERING */}
-        <div className="space-y-3 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-          {filteredHistory.length > 0 ? (
-            filteredHistory.map((item) => (
+        {/* LIST RENDERING WITH PAGINATION */}
+        <div className="space-y-3 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
+          {currentItems.length > 0 ? (
+            currentItems.map((item) => (
               <TransactionItem
                 key={item._id}
                 item={item}
@@ -343,19 +346,37 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
               </p>
             </div>
           )}
+
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredHistory.length}
+            itemsPerPage={itemsPerPage}
+            paginate={paginate}
+          />
         </div>
       </div>
     </div>
   );
 };
 
+// ==========================================
 // 2. INCOME VIEW COMPONENT
-
+// ==========================================
 const IncomeView = ({ editItem, setEditItem }) => {
   const { incomes, totalIncome } = useGlobalContext();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   const sortedIncomes = [...incomes].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
+
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedIncomes.slice(indexOfFirstItem, indexOfLastItem);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex flex-col gap-6">
@@ -378,27 +399,44 @@ const IncomeView = ({ editItem, setEditItem }) => {
         </div>
         <div className="col-span-3 space-y-3">
           <h3 className="font-bold text-gray-600">Income History</h3>
-          {sortedIncomes.map((item) => (
+          {currentItems.map((item) => (
             <TransactionItem
               key={item._id}
               item={item}
               setEditItem={setEditItem}
             />
           ))}
+          <Pagination
+            currentPage={currentPage}
+            totalItems={sortedIncomes.length}
+            itemsPerPage={itemsPerPage}
+            paginate={paginate}
+          />
         </div>
       </div>
     </div>
   );
 };
 
+// ==========================================
 // 3. EXPENSE VIEW COMPONENT
-
+// ==========================================
 const ExpenseView = ({ editItem, setEditItem }) => {
   const { expenses, totalExpenses, totalIncome, totalBalance } =
     useGlobalContext();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   const sortedExpenses = [...expenses].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
+
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedExpenses.slice(indexOfFirstItem, indexOfLastItem);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const getCategoryIcon = (category) => {
     switch (category.toLowerCase()) {
@@ -556,27 +594,43 @@ const ExpenseView = ({ editItem, setEditItem }) => {
 
         <div className="col-span-3 space-y-3">
           <h3 className="font-bold text-gray-600">Expense History</h3>
-          {sortedExpenses.map((item) => (
+          {currentItems.map((item) => (
             <TransactionItem
               key={item._id}
               item={item}
               setEditItem={setEditItem}
             />
           ))}
+          <Pagination
+            currentPage={currentPage}
+            totalItems={sortedExpenses.length}
+            itemsPerPage={itemsPerPage}
+            paginate={paginate}
+          />
         </div>
       </div>
     </div>
   );
 };
 
+// ==========================================
 // 4. INVESTMENT VIEW
-
+// ==========================================
 const InvestmentView = ({ editItem, setEditItem }) => {
   const { expenses } = useGlobalContext();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   const investments = expenses.filter(
     (item) => item.category === "investments"
   );
   const totalInvested = investments.reduce((acc, curr) => acc + curr.amount, 0);
+
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = investments.slice(indexOfFirstItem, indexOfLastItem);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex flex-col gap-6">
@@ -606,8 +660,8 @@ const InvestmentView = ({ editItem, setEditItem }) => {
         </div>
         <div className="col-span-3 space-y-3">
           <h3 className="font-bold text-gray-600">Investment History</h3>
-          {investments.length > 0 ? (
-            investments.map((item) => (
+          {currentItems.length > 0 ? (
+            currentItems.map((item) => (
               <TransactionItem
                 key={item._id}
                 item={item}
@@ -617,34 +671,30 @@ const InvestmentView = ({ editItem, setEditItem }) => {
           ) : (
             <p className="text-gray-400 italic">No investments found.</p>
           )}
+          <Pagination
+            currentPage={currentPage}
+            totalItems={investments.length}
+            itemsPerPage={itemsPerPage}
+            paginate={paginate}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-// FINANCIAL WISDOM SLIDER COMPONENT
+// ==========================================
+// SHARED COMPONENTS (Slider, Form, Item, Pagination)
+// ==========================================
 
 const FinancialWisdomSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const slides = [
-    {
-      id: 1,
-      image: "/slider/img1.png",
-    },
-    {
-      id: 2,
-      image: "/slider/img2.png",
-    },
-    {
-      id: 3,
-      image: "/slider/img3.jpeg",
-    },
-    {
-      id: 4,
-      image: "/slider/img4.jpeg",
-    },
+    { id: 1, image: "/slider/img1.png" },
+    { id: 2, image: "/slider/img2.png" },
+    { id: 3, image: "/slider/img3.jpeg" },
+    { id: 4, image: "/slider/img4.jpeg" },
   ];
 
   useEffect(() => {
@@ -660,7 +710,6 @@ const FinancialWisdomSlider = () => {
         className="absolute inset-0 bg-cover bg-center transition-all duration-1000 transform group-hover:scale-105"
         style={{ backgroundImage: `url(${slides[currentIndex].image})` }}
       ></div>
-
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1">
         {slides.map((_, idx) => (
           <div
@@ -675,15 +724,12 @@ const FinancialWisdomSlider = () => {
   );
 };
 
-// ==========================================
-// UPDATED: TRANSACTION FORM COMPONENT (SMART EDIT)
-// ==========================================
 const TransactionForm = ({
   type,
   defaultCategory = "",
   isDashboard = false,
-  editItem, // NEW
-  setEditItem, // NEW
+  editItem,
+  setEditItem,
 }) => {
   const { addIncome, updateTransaction } = useGlobalContext();
   const today = moment().format("YYYY-MM-DD");
@@ -697,7 +743,6 @@ const TransactionForm = ({
     type: type,
   });
 
-  // 1. LISTEN FOR EDIT CLICKS
   useEffect(() => {
     if (editItem) {
       setInputState({
@@ -709,7 +754,6 @@ const TransactionForm = ({
         type: editItem.type,
       });
     } else {
-      // Reset if editItem is null, but keep the current view's type
       setInputState((prev) => ({ ...prev, type: type }));
     }
   }, [editItem, type]);
@@ -722,8 +766,6 @@ const TransactionForm = ({
     } else {
       addIncome(inputState);
     }
-
-    // Reset Form
     setInputState({
       title: "",
       amount: "",
@@ -757,8 +799,6 @@ const TransactionForm = ({
             : `New ${type === "income" ? "Income" : "Expense"}`}
         </h3>
       )}
-
-      {/* Cancel Edit Banner */}
       {editItem && (
         <div className="mb-3 flex justify-between items-center bg-yellow-50 p-2 rounded-lg border border-yellow-200">
           <span className="text-xs text-yellow-700 font-bold">
@@ -772,7 +812,6 @@ const TransactionForm = ({
           </button>
         </div>
       )}
-
       <form className="space-y-3" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -783,7 +822,6 @@ const TransactionForm = ({
             setInputState({ ...inputState, title: e.target.value })
           }
         />
-
         <input
           type="number"
           placeholder="Amount"
@@ -793,7 +831,6 @@ const TransactionForm = ({
             setInputState({ ...inputState, amount: e.target.value })
           }
         />
-
         <select
           className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
           value={inputState.category}
@@ -804,7 +841,6 @@ const TransactionForm = ({
           <option value="" disabled>
             Select Category
           </option>
-          {/* Show categories based on the CURRENT INPUT TYPE, not the prop type */}
           {inputState.type === "expense" ? (
             <>
               <option value="rent">Rent</option>
@@ -834,7 +870,6 @@ const TransactionForm = ({
             </>
           )}
         </select>
-
         <textarea
           placeholder="Add A Description"
           className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500 resize-none"
@@ -844,7 +879,6 @@ const TransactionForm = ({
             setInputState({ ...inputState, description: e.target.value })
           }
         ></textarea>
-
         <input
           type="date"
           className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
@@ -853,7 +887,6 @@ const TransactionForm = ({
             setInputState({ ...inputState, date: e.target.value })
           }
         />
-
         <button
           className={`w-full text-white p-3 rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2 ${
             editItem
@@ -873,14 +906,10 @@ const TransactionForm = ({
   );
 };
 
-// ==========================================
-// UPDATED: TRANSACTION LIST ITEM (ALWAYS VISIBLE BUTTONS)
-// ==========================================
 const TransactionItem = ({ item, setEditItem }) => {
   const { deleteTransaction } = useGlobalContext();
   return (
     <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-      {/* LEFT SIDE: Icon + Title + Date */}
       <div className="flex items-center gap-4">
         <div
           className={`p-3 rounded-full ${
@@ -899,8 +928,6 @@ const TransactionItem = ({ item, setEditItem }) => {
           </div>
         </div>
       </div>
-
-      {/* RIGHT SIDE: Amount + Buttons */}
       <div className="flex items-center gap-3">
         <p
           className={`font-bold mr-2 ${
@@ -909,11 +936,8 @@ const TransactionItem = ({ item, setEditItem }) => {
         >
           {item.type === "income" ? "+" : "-"}₹{item.amount}
         </p>
-
-        {/* EDIT BUTTON - Always Visible */}
         <button
           onClick={() => {
-            // Scroll to top so user sees the form
             window.scrollTo({ top: 0, behavior: "smooth" });
             setEditItem(item);
           }}
@@ -922,8 +946,6 @@ const TransactionItem = ({ item, setEditItem }) => {
         >
           <Pencil size={16} />
         </button>
-
-        {/* DELETE BUTTON - Always Visible */}
         <button
           onClick={() => deleteTransaction(item._id)}
           className="bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-200 transition-colors shadow-sm"
@@ -932,6 +954,42 @@ const TransactionItem = ({ item, setEditItem }) => {
           <Trash size={16} />
         </button>
       </div>
+    </div>
+  );
+};
+
+// --- NEW: PAGINATION COMPONENT ---
+const Pagination = ({ currentPage, totalItems, itemsPerPage, paginate }) => {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex justify-center items-center gap-4 mt-6">
+      <button
+        onClick={() => paginate(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+          currentPage === 1
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-violet-100 text-violet-600 hover:bg-violet-200"
+        }`}
+      >
+        Previous
+      </button>
+      <span className="text-gray-600 font-medium text-sm">
+        Page {currentPage} of {totalPages}
+      </span>
+      <button
+        onClick={() => paginate(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+          currentPage === totalPages
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-violet-100 text-violet-600 hover:bg-violet-200"
+        }`}
+      >
+        Next
+      </button>
     </div>
   );
 };
