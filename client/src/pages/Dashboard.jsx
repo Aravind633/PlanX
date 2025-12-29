@@ -1,4 +1,3 @@
-// client/src/pages/Dashboard.jsx
 import React, { useState, useEffect } from "react";
 import { useGlobalContext } from "../context/globalContext";
 import { useNavigate } from "react-router-dom";
@@ -12,10 +11,17 @@ import {
   LayoutDashboard,
   PieChart,
   Plus,
+  Utensils,
+  Home,
+  Film,
+  ShoppingBag,
+  BookOpen,
+  HeartPulse,
+  Car,
+  Zap,
+  CircleDollarSign,
 } from "lucide-react";
 import moment from "moment";
-
-// NOTE: Images in 'public' folder are referenced via string path "/filename.ext"
 
 function Dashboard() {
   const [active, setActive] = useState(1);
@@ -58,12 +64,9 @@ function Dashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100 text-gray-800 font-sans overflow-hidden">
-      {/* --- SIDEBAR --- */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shadow-xl z-10 justify-between">
         <div>
-          {/* --- LOGO SECTION --- */}
           <div className="mb-10">
-            {/* 1. Main Logo & Name */}
             <h1 className="text-3xl font-bold flex items-center gap-2 mb-2">
               <img
                 src={PlanXImg}
@@ -76,7 +79,6 @@ function Dashboard() {
               </span>
             </h1>
 
-            {/* 2. Animated Caption */}
             <div className="flex gap-1 text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase ml-2">
               <span className="animate-[pulse_3s_ease-in-out_infinite]">
                 Manage
@@ -134,7 +136,6 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* --- MAIN CONTENT AREA --- */}
       <main className="flex-1 p-8 overflow-y-auto bg-[#fbfcff]">
         {error && (
           <p className="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-center font-bold animate-bounce">
@@ -147,9 +148,8 @@ function Dashboard() {
   );
 }
 
-// ==========================================
-// 1. DASHBOARD OVERVIEW COMPONENT (FIXED LAYOUT)
-// ==========================================
+// 1. DASHBOARD OVERVIEW COMPONENT
+
 const DashboardOverview = () => {
   const { totalIncome, totalExpenses, totalBalance, transactionHistory } =
     useGlobalContext();
@@ -159,7 +159,6 @@ const DashboardOverview = () => {
     <div className="flex flex-col gap-8 pb-10">
       <h2 className="text-3xl font-bold text-gray-800">Dashboard</h2>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-3 gap-6">
         <div className="bg-violet-600 text-white p-6 rounded-2xl shadow-lg transform hover:scale-[1.02] transition-transform">
           <h3 className="text-lg opacity-90">Total Balance</h3>
@@ -183,19 +182,16 @@ const DashboardOverview = () => {
         </div>
       </div>
 
-      {/* Chart & Form Section */}
       <div className="grid grid-cols-5 gap-8">
-        {/* Chart Area - Auto Height to fit both charts */}
         <div className="col-span-3 h-auto">
           <Chart />
         </div>
 
-        {/* Form Area with Toggle */}
-        <div className="col-span-2">
-          <div className="bg-white p-4 rounded-2xl shadow-lg border border-gray-100 h-full">
+        <div className="col-span-2 flex flex-col gap-6">
+          <div className="bg-white p-4 rounded-2xl shadow-lg border border-gray-100 h-fit">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-violet-800">Quick Add</h3>
-              {/* Toggle Buttons */}
+
               <div className="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
                 <button
                   onClick={() => setFormType("expense")}
@@ -219,13 +215,14 @@ const DashboardOverview = () => {
                 </button>
               </div>
             </div>
-            {/* Embedded Form */}
+
             <TransactionForm type={formType} isDashboard={true} />
           </div>
+
+          <FinancialWisdomSlider />
         </div>
       </div>
 
-      {/* Recent History */}
       <div className="mt-8">
         <h3 className="text-xl font-bold mb-4 text-gray-700">
           Recent Transactions
@@ -247,9 +244,8 @@ const DashboardOverview = () => {
   );
 };
 
-// ==========================================
 // 2. INCOME VIEW COMPONENT
-// ==========================================
+
 const IncomeView = () => {
   const { incomes, totalIncome } = useGlobalContext();
   const sortedIncomes = [...incomes].sort(
@@ -282,14 +278,54 @@ const IncomeView = () => {
   );
 };
 
-// ==========================================
 // 3. EXPENSE VIEW COMPONENT
-// ==========================================
+
 const ExpenseView = () => {
-  const { expenses, totalExpenses } = useGlobalContext();
+  const { expenses, totalExpenses, totalIncome, totalBalance } =
+    useGlobalContext();
   const sortedExpenses = [...expenses].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
+
+  const getCategoryIcon = (category) => {
+    switch (category.toLowerCase()) {
+      case "food":
+        return <Utensils size={18} />;
+      case "groceries":
+        return <Utensils size={18} />;
+      case "rent":
+        return <Home size={18} />;
+      case "entertainment":
+        return <Film size={18} />;
+      case "shopping":
+        return <ShoppingBag size={18} />;
+      case "clothing":
+        return <ShoppingBag size={18} />;
+      case "education":
+        return <BookOpen size={18} />;
+      case "health":
+        return <HeartPulse size={18} />;
+      case "travel":
+        return <Car size={18} />;
+      case "fuel":
+        return <Car size={18} />;
+      case "bills":
+        return <Zap size={18} />;
+      case "investments":
+        return <TrendingUp size={18} />;
+      default:
+        return <CircleDollarSign size={18} />;
+    }
+  };
+
+  const categoryTotals = expenses.reduce((acc, curr) => {
+    acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
+    return acc;
+  }, {});
+
+  const topCategories = Object.entries(categoryTotals)
+    .sort(([, amountA], [, amountB]) => amountB - amountA)
+    .slice(0, 4);
 
   return (
     <div className="flex flex-col gap-6">
@@ -302,10 +338,105 @@ const ExpenseView = () => {
           ₹{totalExpenses()}
         </p>
       </div>
+
       <div className="grid grid-cols-5 gap-8">
-        <div className="col-span-2">
+        <div className="col-span-2 flex flex-col gap-6">
           <TransactionForm type="expense" />
+
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 flex flex-col justify-between">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-gray-700">
+                  Savings Target
+                </h3>
+                <p className="text-xs text-gray-400">Target: 20% of Income</p>
+              </div>
+              <div className="bg-green-100 p-2 rounded-lg text-green-600">
+                <TrendingUp size={24} />
+              </div>
+            </div>
+            {(() => {
+              const savingsPercentage =
+                totalIncome() > 0
+                  ? ((totalBalance() / totalIncome()) * 100).toFixed(0)
+                  : 0;
+              let colorClass = "bg-green-500";
+              let message = "Great job!";
+              if (savingsPercentage < 10) {
+                colorClass = "bg-red-500";
+                message = "Critical Low";
+              } else if (savingsPercentage < 20) {
+                colorClass = "bg-yellow-500";
+                message = "Needs Improvement";
+              }
+
+              return (
+                <>
+                  <div className="flex items-end gap-2 mb-2">
+                    <span className="text-4xl font-bold text-gray-800">
+                      {savingsPercentage}%
+                    </span>
+                    <span className="text-sm text-gray-500 mb-1">Saved</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-3 mb-3">
+                    <div
+                      className={`h-3 rounded-full transition-all duration-1000 ${colorClass}`}
+                      style={{ width: `${Math.max(savingsPercentage, 0)}%` }}
+                    ></div>
+                  </div>
+                  <p
+                    className={`text-sm font-semibold ${
+                      savingsPercentage < 20 ? "text-red-500" : "text-green-600"
+                    }`}
+                  >
+                    {message}
+                  </p>
+                </>
+              );
+            })()}
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <h3 className="text-lg font-bold text-gray-700 mb-5">
+              Where your money went
+            </h3>
+            <div className="space-y-5">
+              {topCategories.length > 0 ? (
+                topCategories.map(([cat, amount], index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="bg-violet-50 text-violet-600 p-3 rounded-full shadow-sm">
+                      {getCategoryIcon(cat)}
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="capitalize text-gray-700 font-bold">
+                          {cat}
+                        </span>
+                        <span className="font-bold text-gray-800">
+                          ₹{amount}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2">
+                        <div
+                          className="bg-violet-500 h-2 rounded-full opacity-80"
+                          style={{
+                            width: `${(amount / totalExpenses()) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm italic">
+                  Add expenses to see breakdown
+                </p>
+              )}
+            </div>
+          </div>
         </div>
+
         <div className="col-span-3 space-y-3">
           <h3 className="font-bold text-gray-600">Expense History</h3>
           {sortedExpenses.map((item) => (
@@ -317,9 +448,8 @@ const ExpenseView = () => {
   );
 };
 
-// ==========================================
 // 4. INVESTMENT VIEW
-// ==========================================
+
 const InvestmentView = () => {
   const { expenses } = useGlobalContext();
   const investments = expenses.filter(
@@ -363,9 +493,60 @@ const InvestmentView = () => {
   );
 };
 
-// ==========================================
-// SHARED: TRANSACTION FORM COMPONENT
-// ==========================================
+// FINANCIAL WISDOM SLIDER COMPONENT
+
+const FinancialWisdomSlider = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const slides = [
+    {
+      id: 1,
+      image: "/slider/img1.png",
+    },
+    {
+      id: 2,
+      image: "/slider/img2.png",
+    },
+    {
+      id: 3,
+      image: "/slider/img3.jpeg",
+    },
+    {
+      id: 4,
+      image: "/slider/img4.jpeg",
+    },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="relative h-80 w-full rounded-2xl overflow-hidden shadow-lg group bg-white border border-gray-100">
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-all duration-1000 transform group-hover:scale-105"
+        style={{ backgroundImage: `url(${slides[currentIndex].image})` }}
+      ></div>
+
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1">
+        {slides.map((_, idx) => (
+          <div
+            key={idx}
+            className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${
+              idx === currentIndex ? "w-6 bg-violet-600" : "w-2 bg-gray-300"
+            }`}
+          ></div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// TRANSACTION FORM COMPONENT
+
 const TransactionForm = ({
   type,
   defaultCategory = "",
@@ -383,7 +564,6 @@ const TransactionForm = ({
     type: type,
   });
 
-  // Sync state type if props change (for Dashboard toggle)
   useEffect(() => {
     setInputState((prev) => ({ ...prev, type: type }));
   }, [type]);
@@ -402,11 +582,9 @@ const TransactionForm = ({
   };
 
   return (
-    // Only add background styling if NOT on dashboard (Dashboard handles its own container)
     <div
-      className={isDashboard ? "" : "bg-white rounded-2xl shadow-lg p-6 h-full"}
+      className={isDashboard ? "" : "bg-white rounded-2xl shadow-lg p-6 h-fit"}
     >
-      {/* Hide title on Dashboard since we use the Quick Add header there */}
       {!isDashboard && (
         <h3 className="text-xl font-bold mb-4 text-violet-800">
           New {type === "income" ? "Income" : "Expense"}
@@ -446,6 +624,7 @@ const TransactionForm = ({
           </option>
           {type === "expense" ? (
             <>
+              <option value="rent">Rent</option>
               <option value="food">Food</option>
               <option value="bills">Bills</option>
               <option value="entertainment">Entertainment</option>
@@ -506,9 +685,8 @@ const TransactionForm = ({
   );
 };
 
-// ==========================================
-// SHARED: TRANSACTION LIST ITEM
-// ==========================================
+// TRANSACTION LIST ITEM
+
 const TransactionItem = ({ item }) => {
   const { deleteTransaction } = useGlobalContext();
   return (

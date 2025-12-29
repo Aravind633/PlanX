@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Register from "./pages/Register"; // You can create this similar to Login
-import Dashboard from "./pages/Dashboard"; // Rename your old App.jsx to Dashboard.jsx
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 import { GlobalProvider } from "./context/globalContext";
 
 function App() {

@@ -9,10 +9,8 @@ export const GlobalProvider = ({ children }) => {
   const [expenses, setExpenses] = useState([]);
   const [error, setError] = useState(null);
 
-  // ---------------------------------------------------
   // 1. Authentication Helper
-  // ---------------------------------------------------
-  // This retrieves the token from LocalStorage to send to the backend
+
   const getConfig = () => {
     const token = sessionStorage.getItem("token");
     return {
@@ -22,16 +20,12 @@ export const GlobalProvider = ({ children }) => {
     };
   };
 
-  // ---------------------------------------------------
   // 2. API Calls
-  // ---------------------------------------------------
 
-  // Add Transaction (Income or Expense)
   const addIncome = async (income) => {
     try {
-      // Pass 'getConfig()' as the 3rd argument for security
       await axios.post(`${BASE_URL}add-transaction`, income, getConfig());
-      getIncomes(); // Refresh the list immediately
+      getIncomes();
     } catch (err) {
       setError(err.response?.data?.message);
     }
@@ -40,7 +34,6 @@ export const GlobalProvider = ({ children }) => {
   // Get All Transactions
   const getIncomes = async () => {
     try {
-      // Pass 'getConfig()' as the 2nd argument for security
       const response = await axios.get(
         `${BASE_URL}get-transactions`,
         getConfig()
@@ -61,15 +54,13 @@ export const GlobalProvider = ({ children }) => {
   const deleteTransaction = async (id) => {
     try {
       await axios.delete(`${BASE_URL}delete-transaction/${id}`, getConfig());
-      getIncomes(); // Refresh list after deleting
+      getIncomes();
     } catch (err) {
       setError(err.response?.data?.message);
     }
   };
 
-  // ---------------------------------------------------
   // 3. Calculations
-  // ---------------------------------------------------
 
   const totalIncome = () => {
     return incomes.reduce((acc, curr) => acc + curr.amount, 0);

@@ -7,7 +7,6 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  // Inside handleLogin function
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -16,7 +15,6 @@ function Login() {
         password,
       });
 
-      // CHANGE THIS: Use sessionStorage instead of localStorage
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("user", JSON.stringify(data.user));
 

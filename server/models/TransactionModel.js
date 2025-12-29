@@ -34,7 +34,7 @@ const TransactionSchema = new mongoose.Schema(
       maxLength: 200,
       trim: true,
     },
-    // This is the new field that links the transaction to a specific User
+
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
