@@ -23,18 +23,21 @@ import {
   Pencil,
   Trash,
   X,
+  Target,
+  Repeat, // <--- NEW ICON for Recurring
 } from "lucide-react";
 import moment from "moment";
 
 function Dashboard() {
   const [active, setActive] = useState(1);
   const [editItem, setEditItem] = useState(null);
-  const { getIncomes, error, setError } = useGlobalContext();
+  const { getIncomes, getBudgets, error, setError } = useGlobalContext();
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user"));
 
   useEffect(() => {
     getIncomes();
+    getBudgets();
   }, []);
 
   const handleSignOut = () => {
@@ -49,6 +52,7 @@ function Dashboard() {
     { id: 2, title: "Incomes", icon: <TrendingUp size={20} /> },
     { id: 3, title: "Expenses", icon: <TrendingDown size={20} /> },
     { id: 4, title: "Investments", icon: <PieChart size={20} /> },
+    { id: 5, title: "Budgets", icon: <Target size={20} /> },
   ];
 
   const displayData = () => {
@@ -63,6 +67,8 @@ function Dashboard() {
         return <ExpenseView editItem={editItem} setEditItem={setEditItem} />;
       case 4:
         return <InvestmentView editItem={editItem} setEditItem={setEditItem} />;
+      case 5:
+        return <BudgetView />;
       default:
         return (
           <DashboardOverview editItem={editItem} setEditItem={setEditItem} />
@@ -167,16 +173,13 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
     useGlobalContext();
   const [formType, setFormType] = useState("expense");
 
-  // --- FILTER STATES ---
   const [filterType, setFilterType] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [dateRange, setDateRange] = useState("30");
 
-  // --- PAGINATION STATE ---
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // --- FILTERING LOGIC ---
   const getFilteredTransactions = () => {
     let allTransactions = [...incomes, ...expenses];
 
@@ -206,7 +209,6 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
 
   const filteredHistory = getFilteredTransactions();
 
-  // --- PAGINATION SLICING ---
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredHistory.slice(indexOfFirstItem, indexOfLastItem);
@@ -288,12 +290,10 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
         </div>
       </div>
 
-      {/* --- RECENT HISTORY --- */}
       <div className="mt-8">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-gray-700">Recent History</h3>
 
-          {/* FILTER BAR */}
           <div className="flex gap-2">
             <select
               className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg p-2 focus:outline-none focus:border-violet-500"
@@ -329,7 +329,6 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
           </div>
         </div>
 
-        {/* LIST RENDERING WITH PAGINATION */}
         <div className="space-y-3 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
           {currentItems.length > 0 ? (
             currentItems.map((item) => (
@@ -372,7 +371,6 @@ const IncomeView = ({ editItem, setEditItem }) => {
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
-  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sortedIncomes.slice(indexOfFirstItem, indexOfLastItem);
@@ -432,7 +430,6 @@ const ExpenseView = ({ editItem, setEditItem }) => {
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
-  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sortedExpenses.slice(indexOfFirstItem, indexOfLastItem);
@@ -626,7 +623,6 @@ const InvestmentView = ({ editItem, setEditItem }) => {
   );
   const totalInvested = investments.reduce((acc, curr) => acc + curr.amount, 0);
 
-  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = investments.slice(indexOfFirstItem, indexOfLastItem);
@@ -684,6 +680,221 @@ const InvestmentView = ({ editItem, setEditItem }) => {
 };
 
 // ==========================================
+// 5. BUDGET VIEW (UPDATED WITH SUMMARY)
+// ==========================================
+const BudgetView = () => {
+  const { budgets, addBudget, deleteBudget, expenses } = useGlobalContext();
+  const [category, setCategory] = useState("");
+  const [limit, setLimit] = useState("");
+
+  const handleAddBudget = (e) => {
+    e.preventDefault();
+    if (!category || !limit) return;
+    addBudget({ category, limit: parseFloat(limit) });
+    setCategory("");
+    setLimit("");
+  };
+
+  const getProgress = (budgetCategory, budgetLimit) => {
+    const spent = expenses
+      .filter((t) => t.category === budgetCategory)
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    const percentage = Math.min((spent / budgetLimit) * 100, 100);
+
+    let color = "bg-green-500";
+    let textColor = "text-green-600";
+    if (percentage > 80) {
+      color = "bg-red-500";
+      textColor = "text-red-600";
+    } else if (percentage > 50) {
+      color = "bg-yellow-500";
+      textColor = "text-yellow-600";
+    }
+
+    return { spent, percentage, color, textColor };
+  };
+
+  // --- TOTAL SUMMARY HELPER ---
+  const totalBudgetLimit = budgets.reduce((acc, b) => acc + b.limit, 0);
+
+  const totalBudgetSpent = budgets.reduce((acc, b) => {
+    const catSpent = expenses
+      .filter((t) => t.category === b.category)
+      .reduce((total, curr) => total + curr.amount, 0);
+    return acc + catSpent;
+  }, 0);
+
+  const totalRemaining = totalBudgetLimit - totalBudgetSpent;
+  const totalPercentage =
+    totalBudgetLimit > 0
+      ? ((totalBudgetSpent / totalBudgetLimit) * 100).toFixed(0)
+      : 0;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <h2 className="text-3xl font-bold text-gray-800">Smart Budgets</h2>
+
+      <div className="grid grid-cols-5 gap-8">
+        {/* LEFT COLUMN: FORM + SUMMARY */}
+        <div className="col-span-2">
+          <div className="sticky top-4 flex flex-col gap-6">
+            {/* ADD BUDGET FORM */}
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+              <h3 className="text-xl font-bold mb-4 text-violet-800">
+                Set Monthly Limit
+              </h3>
+              <form className="space-y-4" onSubmit={handleAddBudget}>
+                <select
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                >
+                  <option value="" disabled>
+                    Select Category
+                  </option>
+                  <option value="rent">Rent</option>
+                  <option value="food">Food</option>
+                  <option value="bills">Bills</option>
+                  <option value="entertainment">Entertainment</option>
+                  <option value="shopping">Shopping</option>
+                  <option value="fuel">Fuel</option>
+                  <option value="travel">Travel</option>
+                  <option value="health">Health</option>
+                </select>
+
+                <input
+                  type="number"
+                  placeholder="Limit Amount (e.g. 5000)"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
+                  value={limit}
+                  onChange={(e) => setLimit(e.target.value)}
+                  required
+                />
+
+                <button className="w-full text-white bg-violet-600 hover:bg-violet-700 p-3 rounded-xl font-bold shadow-lg transition-colors flex items-center justify-center gap-2">
+                  <Plus size={18} /> Set Budget
+                </button>
+              </form>
+            </div>
+
+            {/* TOTAL BUDGET SNAPSHOT */}
+            {budgets.length > 0 && (
+              <div className="bg-gradient-to-br from-violet-600 to-indigo-600 p-6 rounded-2xl shadow-lg text-white">
+                <h3 className="text-lg font-semibold opacity-90 mb-4 flex items-center gap-2">
+                  <Target size={20} /> Overall Status
+                </h3>
+
+                <div className="flex justify-between items-end mb-2">
+                  <div>
+                    <p className="text-sm opacity-80">Total Budget</p>
+                    <p className="text-2xl font-bold">₹{totalBudgetLimit}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm opacity-80">Spent</p>
+                    <p className="text-2xl font-bold text-red-200">
+                      ₹{totalBudgetSpent}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="w-full bg-black/20 rounded-full h-2 mb-4">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-1000 ${
+                      totalPercentage > 100 ? "bg-red-400" : "bg-green-400"
+                    }`}
+                    style={{ width: `${Math.min(totalPercentage, 100)}%` }}
+                  ></div>
+                </div>
+
+                <div className="bg-white/10 p-3 rounded-xl flex justify-between items-center backdrop-blur-sm border border-white/10">
+                  <span className="text-sm font-medium">Safe to Spend</span>
+                  <span
+                    className={`text-xl font-bold ${
+                      totalRemaining < 0 ? "text-red-300" : "text-green-300"
+                    }`}
+                  >
+                    {totalRemaining < 0 ? "-" : ""}₹{Math.abs(totalRemaining)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT: BUDGET LIST */}
+        <div className="col-span-3 space-y-4">
+          {budgets.length > 0 ? (
+            budgets.map((budget) => {
+              const { spent, percentage, color, textColor } = getProgress(
+                budget.category,
+                budget.limit
+              );
+
+              return (
+                <div
+                  key={budget._id}
+                  className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-3"
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <span className="p-2 bg-gray-100 rounded-lg text-gray-600 capitalize font-bold">
+                        {budget.category}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => deleteBudget(budget._id)}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <Trash size={16} />
+                    </button>
+                  </div>
+
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+                        Spent / Limit
+                      </p>
+                      <p className="text-lg font-bold text-gray-700">
+                        ₹{spent}{" "}
+                        <span className="text-gray-400 text-sm">
+                          / ₹{budget.limit}
+                        </span>
+                      </p>
+                    </div>
+                    <div className={`text-sm font-bold ${textColor}`}>
+                      {percentage.toFixed(0)}% Used
+                    </div>
+                  </div>
+
+                  <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                    <div
+                      className={`h-full ${color} transition-all duration-1000 ease-out`}
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+
+                  {percentage >= 100 && (
+                    <p className="text-xs text-red-500 font-bold flex items-center gap-1">
+                      <TrendingDown size={14} /> Budget Exceeded!
+                    </p>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <div className="text-center py-10 text-gray-400">
+              <p>No budgets set yet. Start planning!</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
 // SHARED COMPONENTS (Slider, Form, Item, Pagination)
 // ==========================================
 
@@ -724,6 +935,7 @@ const FinancialWisdomSlider = () => {
   );
 };
 
+// --- UPDATED FORM WITH RECURRING CHECKBOX ---
 const TransactionForm = ({
   type,
   defaultCategory = "",
@@ -741,6 +953,7 @@ const TransactionForm = ({
     category: defaultCategory,
     description: "",
     type: type,
+    isRecurring: false, // NEW
   });
 
   useEffect(() => {
@@ -752,20 +965,30 @@ const TransactionForm = ({
         category: editItem.category,
         description: editItem.description,
         type: editItem.type,
+        isRecurring: editItem.isRecurring || false, // Pre-fill
       });
     } else {
-      setInputState((prev) => ({ ...prev, type: type }));
+      setInputState((prev) => ({ ...prev, type: type, isRecurring: false }));
     }
   }, [editItem, type]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Prepare Data (Add recurringFrequency logic)
+    const transactionData = {
+      ...inputState,
+      recurringFrequency: inputState.isRecurring ? "monthly" : "none",
+    };
+
     if (editItem) {
-      updateTransaction(editItem._id, inputState);
+      updateTransaction(editItem._id, transactionData);
       setEditItem(null);
     } else {
-      addIncome(inputState);
+      addIncome(transactionData);
     }
+
+    // Reset Form
     setInputState({
       title: "",
       amount: "",
@@ -773,6 +996,7 @@ const TransactionForm = ({
       category: defaultCategory,
       description: "",
       type: type,
+      isRecurring: false,
     });
   };
 
@@ -785,6 +1009,7 @@ const TransactionForm = ({
       category: defaultCategory,
       description: "",
       type: type,
+      isRecurring: false,
     });
   };
 
@@ -887,6 +1112,26 @@ const TransactionForm = ({
             setInputState({ ...inputState, date: e.target.value })
           }
         />
+
+        {/* --- RECURRING CHECKBOX --- */}
+        <div className="flex items-center gap-2 px-1">
+          <input
+            type="checkbox"
+            id="recurring"
+            className="w-4 h-4 text-violet-600 rounded focus:ring-violet-500 cursor-pointer"
+            checked={inputState.isRecurring}
+            onChange={(e) =>
+              setInputState({ ...inputState, isRecurring: e.target.checked })
+            }
+          />
+          <label
+            htmlFor="recurring"
+            className="text-gray-600 text-sm font-medium cursor-pointer flex items-center gap-1"
+          >
+            <Repeat size={14} /> Recurring Monthly
+          </label>
+        </div>
+
         <button
           className={`w-full text-white p-3 rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2 ${
             editItem
@@ -921,7 +1166,14 @@ const TransactionItem = ({ item, setEditItem }) => {
           <IndianRupee size={20} />
         </div>
         <div>
-          <p className="font-bold text-gray-800">{item.title}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-bold text-gray-800">{item.title}</p>
+            {item.isRecurring && (
+              <span className="bg-violet-100 text-violet-600 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <Repeat size={10} /> Monthly
+              </span>
+            )}
+          </div>
           <div className="flex gap-4 text-xs text-gray-400">
             <span>{moment(item.date).format("DD MMM YYYY")}</span>
             <span>{item.description.substring(0, 20)}...</span>
@@ -958,7 +1210,7 @@ const TransactionItem = ({ item, setEditItem }) => {
   );
 };
 
-// --- NEW: PAGINATION COMPONENT ---
+// --- PAGINATION COMPONENT ---
 const Pagination = ({ currentPage, totalItems, itemsPerPage, paginate }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   if (totalPages <= 1) return null;

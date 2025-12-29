@@ -31,14 +31,28 @@ const TransactionSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      maxLength: 200,
+      maxLength: 200, // Kept your existing length
       trim: true,
     },
-
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+
+    // --- NEW FIELDS FOR FEATURE 5 (RECURRING TRANSACTIONS) ---
+    isRecurring: {
+      type: Boolean,
+      default: false,
+    },
+    recurringFrequency: {
+      type: String,
+      enum: ["none", "monthly", "yearly"],
+      default: "none",
+    },
+    lastProcessed: {
+      type: Date, // Tracks when the auto-add last happened
+      default: null,
     },
   },
   { timestamps: true }

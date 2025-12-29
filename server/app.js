@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const { db } = require("./db/db");
 const { readdirSync } = require("fs");
+// --- NEW: Import the Automation Robot ---
+const startCronJob = require("./cron/cron");
+
 const app = express();
 require("dotenv").config();
 
@@ -18,6 +21,10 @@ readdirSync("./routes").map((route) =>
 
 const server = () => {
   db();
+
+  // --- NEW: Wake up the Robot ---
+  startCronJob();
+
   app.listen(PORT, () => {
     console.log("Listening to port:", PORT);
   });
