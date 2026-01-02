@@ -2,7 +2,7 @@ const BudgetSchema = require("../models/BudgetModel");
 
 exports.addBudget = async (req, res) => {
   const { category, limit } = req.body;
-  const userId = req.user.id; // From auth middleware
+  const userId = req.user.id;
 
   try {
     // 1. Validation
@@ -15,11 +15,9 @@ exports.addBudget = async (req, res) => {
         .json({ message: "Limit must be a positive number" });
     }
 
-    // 2. Check if budget already exists for this category
     const existingBudget = await BudgetSchema.findOne({ userId, category });
 
     if (existingBudget) {
-      // Update existing
       existingBudget.limit = limit;
       await existingBudget.save();
       return res
@@ -27,7 +25,6 @@ exports.addBudget = async (req, res) => {
         .json({ message: "Budget Updated", budget: existingBudget });
     }
 
-    // 3. Create New
     const budget = new BudgetSchema({
       userId,
       category,

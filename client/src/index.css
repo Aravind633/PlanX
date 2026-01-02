@@ -1,1 +1,58 @@
+/* 1. Google Fonts MUST be first (before Tailwind) */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* 2. Tailwind Import */
 @import "tailwindcss";
+
+/* 3. Theme Configuration */
+@theme {
+  --font-inter: "Inter", sans-serif;
+}
+
+/* 4. Global Styles */
+:root {
+  font-family: var(--font-inter), sans-serif;
+}
+
+/* Premium Dark Background */
+body {
+  @apply bg-[#050505] text-white;
+  background-image: radial-gradient(
+      circle at 15% 50%,
+      rgba(109, 40, 217, 0.15),
+      transparent 25%
+    ),
+    radial-gradient(circle at 85% 30%, rgba(76, 29, 149, 0.15), transparent 25%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-violet-600;
+}
+
+/* Glass Utilities */
+.glass {
+  @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-xl;
+}
+
+.glass-card {
+  @apply bg-[#111111]/60 backdrop-blur-md border border-white/5 rounded-3xl shadow-lg;
+}
+
+.input-field {
+  @apply w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all;
+}
+
+.btn-primary {
+  @apply bg-violet-600 hover:bg-violet-500 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg shadow-violet-900/20 active:scale-95;
+}

@@ -9,7 +9,6 @@ import {
   Tooltip,
   Legend,
   ArcElement,
-  Filler,
 } from "chart.js";
 import { Line, Doughnut } from "react-chartjs-2";
 import { useGlobalContext } from "../context/globalContext";
@@ -23,53 +22,36 @@ ChartJs.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement,
-  Filler
+  ArcElement
 );
 
 function Chart() {
   const { incomes, expenses } = useGlobalContext();
 
-  // 1. DATA FOR AREA CHART
-  const data = {
-    labels: incomes.map((inc) => {
-      const { date } = inc;
-      return moment(date).format("DD/MM");
-    }),
+  const lineData = {
+    labels: incomes.map((inc) => moment(inc.date).format("DD/MM")),
     datasets: [
       {
         label: "Income",
-        data: [
-          ...incomes.map((income) => {
-            const { amount } = income;
-            return amount;
-          }),
-        ],
-
-        backgroundColor: "rgba(16, 185, 129, 0.2)",
-        borderColor: "#10B981",
-        borderWidth: 2,
-        fill: true,
+        data: incomes.map((inc) => inc.amount),
+        backgroundColor: "rgba(16, 185, 129, 0.1)",
+        borderColor: "#34D399",
+        borderWidth: 3,
+        pointBackgroundColor: "#050505",
+        pointBorderColor: "#34D399",
+        pointBorderWidth: 2,
         tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 6,
       },
       {
         label: "Expenses",
-        data: [
-          ...expenses.map((expense) => {
-            const { amount } = expense;
-            return amount;
-          }),
-        ],
-
-        backgroundColor: "rgba(244, 63, 94, 0.2)",
-        borderColor: "#F43F5E",
-        borderWidth: 2,
-        fill: true,
+        data: expenses.map((exp) => exp.amount),
+        backgroundColor: "rgba(239, 68, 68, 0.1)",
+        borderColor: "#F87171",
+        borderWidth: 3,
+        pointBackgroundColor: "#050505",
+        pointBorderColor: "#F87171",
+        pointBorderWidth: 2,
         tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 6,
       },
     ],
   };
@@ -79,128 +61,118 @@ function Chart() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
+        labels: { color: "#9CA3AF", usePointStyle: true, boxWidth: 6 },
         position: "top",
         align: "end",
-        labels: {
-          usePointStyle: true,
-          boxWidth: 8,
-        },
       },
       tooltip: {
-        mode: "index",
-        intersect: false,
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
-        titleColor: "#1f2937",
-        bodyColor: "#1f2937",
-        borderColor: "#e5e7eb",
+        backgroundColor: "rgba(0,0,0,0.8)",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        borderColor: "rgba(255,255,255,0.1)",
         borderWidth: 1,
-        padding: 10,
-        boxPadding: 4,
+        padding: 12,
+        cornerRadius: 12,
+        displayColors: false,
       },
     },
     scales: {
       x: {
-        grid: {
-          display: false,
-          drawBorder: false,
-        },
-        ticks: {
-          color: "#9ca3af",
-          font: { size: 11 },
-        },
+        grid: { display: false },
+        ticks: { color: "#6B7280", font: { size: 10 } },
       },
       y: {
-        grid: {
-          color: "#f3f4f6",
-          borderDash: [5, 5],
-          drawBorder: false,
-        },
-        ticks: {
-          display: false,
-        },
+        grid: { color: "rgba(255, 255, 255, 0.05)" },
+        ticks: { display: false },
+        border: { display: false },
       },
     },
   };
 
-  // 2. COLOR PALETTE FOR DOUGHNUT CHART
-  const SOURCE_COLORS = [
-    "#6C5DD3",
-    "#3F8CFF",
-    "#FF754C",
-    "#FFA2C0",
-    "#7FBA7A",
-    "#FFCE73",
-    "#24D1D1",
-    "#8065B3",
-    "#45B36B",
-    "#FF5C5C",
-    "#37CDBE",
-    "#5D6D7E",
-    "#F39C12",
-    "#8E44AD",
+  const categoryTotals = expenses.reduce((acc, curr) => {
+    acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
+    return acc;
+  }, {});
+
+  const categories = Object.keys(categoryTotals);
+  const amounts = Object.values(categoryTotals);
+
+  const doughnutColors = [
+    "#8b5cf6",
+    "#ec4899",
+    "#10b981",
+    "#f59e0b",
+    "#3b82f6",
+    "#ef4444",
+    "#06b6d4",
+    "#84cc16",
   ];
 
-  // 3. LOGIC FOR SPENDING BREAKDOWN
-  const uniqueCategories = [...new Set(expenses.map((item) => item.category))];
-  const categoryAmounts = uniqueCategories.map((cat) => {
-    return expenses
-      .filter((item) => item.category === cat)
-      .reduce((acc, curr) => acc + curr.amount, 0);
-  });
-
   const doughnutData = {
-    labels: uniqueCategories.map(
-      (cat) => cat.charAt(0).toUpperCase() + cat.slice(1)
-    ),
+    labels: categories,
     datasets: [
       {
-        data: categoryAmounts,
-        backgroundColor: SOURCE_COLORS,
-        borderWidth: 0,
+        data: amounts,
+        backgroundColor: doughnutColors,
+        borderColor: "#050505",
+        borderWidth: 4,
         hoverOffset: 10,
       },
     ],
   };
 
   const doughnutOptions = {
+    responsive: true,
     maintainAspectRatio: false,
-    cutout: "75%",
+    cutout: "70%",
+    layout: {
+      padding: 10,
+    },
     plugins: {
       legend: {
         position: "right",
         labels: {
+          color: "#D1D5DB",
           usePointStyle: true,
+          pointStyle: "circle",
           padding: 15,
           font: { size: 11 },
-          color: "#4b5563",
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0,0,0,0.9)",
+        bodyColor: "#fff",
+        borderColor: "rgba(255,255,255,0.1)",
+        borderWidth: 1,
+        cornerRadius: 10,
+        callbacks: {
+          label: function (context) {
+            return ` ${context.label}: ₹${context.raw}`;
+          },
         },
       },
     },
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="bg-white border border-gray-100 shadow-xl rounded-2xl p-6 h-[350px]">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-gray-700">Analytics</h3>
-          <span className="text-xs font-semibold bg-gray-100 text-gray-500 px-2 py-1 rounded-md">
-            Last 30 Days
-          </span>
-        </div>
-        <div className="h-full w-full pb-6">
-          <Line data={data} options={lineOptions} />
+    <div className="flex flex-col gap-6">
+      <div className="glass-card p-6 h-[400px] flex flex-col">
+        <h3 className="text-lg font-bold text-gray-200 mb-4">Analytics</h3>
+        <div className="flex-1 w-full relative">
+          <Line data={lineData} options={lineOptions} />
         </div>
       </div>
 
-      <div className="bg-white border border-gray-100 shadow-xl rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-gray-700 mb-4">
+      <div className="glass-card p-6 h-[400px] flex flex-col">
+        <h3 className="text-lg font-bold text-gray-200 mb-4">
           Spending Breakdown
         </h3>
-        <div className="h-[300px] flex justify-center items-center">
+
+        <div className="flex-1 min-h-0 w-full relative flex justify-center items-center">
           {expenses.length > 0 ? (
             <Doughnut data={doughnutData} options={doughnutOptions} />
           ) : (
-            <div className="flex flex-col items-center justify-center text-gray-400 opacity-60">
+            <div className="flex flex-col items-center justify-center text-gray-500 opacity-60">
               <p>No expenses recorded yet</p>
             </div>
           )}

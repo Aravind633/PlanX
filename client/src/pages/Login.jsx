@@ -14,55 +14,65 @@ function Login() {
         email,
         password,
       });
-
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("user", JSON.stringify(data.user));
-
       navigate("/");
       window.location.reload();
     } catch (error) {
-      alert(error.response.data.message);
+      alert(error.response?.data?.message || "Login failed");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-violet-50">
-      <div className="w-96 bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-        <h2 className="text-3xl font-bold text-violet-700 mb-6 text-center">
-          Welcome Back
-        </h2>
-        <form onSubmit={handleLogin} className="space-y-4">
+    <div className="h-screen w-full flex items-center justify-center relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-violet-600/30 rounded-full blur-[100px]"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-600/30 rounded-full blur-[100px]"></div>
+
+      <div className="glass-card p-10 w-full max-w-md z-10">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-2">
+            Plan<span className="text-violet-500">X</span>
+          </h1>
+          <p className="text-gray-400">Welcome back to your financial hub.</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="text-sm font-medium text-gray-600">Email</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block">
+              Email
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 mt-1 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50"
+              className="input-field"
+              placeholder="you@example.com"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-600">
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 mt-1 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500 bg-gray-50"
+              className="input-field"
+              placeholder="••••••••"
             />
           </div>
-          <button className="w-full py-3 bg-violet-600 text-white rounded-xl font-bold hover:bg-violet-700 transition shadow-lg shadow-violet-200">
+          <button className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-violet-900/40 transition-all hover:scale-[1.02]">
             Sign In
           </button>
         </form>
-        <p className="mt-4 text-center text-gray-500 text-sm">
-          Don't have an account?{" "}
+
+        <p className="mt-8 text-center text-gray-500 text-sm">
+          New here?{" "}
           <Link
             to="/register"
-            className="text-violet-600 font-bold hover:underline"
+            className="text-white hover:text-violet-400 font-semibold transition-colors"
           >
-            Register
+            Create an account
           </Link>
         </p>
       </div>

@@ -2,15 +2,22 @@ import React, { useState, useEffect } from "react";
 import { useGlobalContext } from "../context/globalContext";
 import { useNavigate } from "react-router-dom";
 import Chart from "../components/Chart";
+import AiAssistant from "../components/AiAssistant";
 import PlanXImg from "../assets/planX-Logo.jpeg";
 import {
-  IndianRupee,
   TrendingUp,
   TrendingDown,
   LogOut,
   LayoutDashboard,
   PieChart,
+  Target,
+  Menu,
+  X,
   Plus,
+  Pencil,
+  Trash,
+  Repeat,
+  CircleDollarSign,
   Utensils,
   Home,
   Film,
@@ -19,18 +26,13 @@ import {
   HeartPulse,
   Car,
   Zap,
-  CircleDollarSign,
-  Pencil,
-  Trash,
-  X,
-  Target,
-  Repeat, // <--- NEW ICON for Recurring
 } from "lucide-react";
 import moment from "moment";
 
 function Dashboard() {
   const [active, setActive] = useState(1);
   const [editItem, setEditItem] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { getIncomes, getBudgets, error, setError } = useGlobalContext();
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user"));
@@ -48,7 +50,7 @@ function Dashboard() {
   };
 
   const menuItems = [
-    { id: 1, title: "Dashboard", icon: <LayoutDashboard size={20} /> },
+    { id: 1, title: "Overview", icon: <LayoutDashboard size={20} /> },
     { id: 2, title: "Incomes", icon: <TrendingUp size={20} /> },
     { id: 3, title: "Expenses", icon: <TrendingDown size={20} /> },
     { id: 4, title: "Investments", icon: <PieChart size={20} /> },
@@ -77,125 +79,176 @@ function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 text-gray-800 font-sans overflow-hidden">
-      {/* SIDEBAR */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shadow-xl z-10 justify-between">
-        <div>
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold flex items-center gap-2 mb-2">
-              <img
-                src={PlanXImg}
-                alt="PlanX Logo"
-                className="w-16 h-16 rounded-lg object-contain"
-              />
-              <span className="tracking-tight">
-                <span className="text-gray-800">Plan</span>
-                <span className="text-violet-600">X</span>
-              </span>
-            </h1>
-
-            <div className="flex gap-1 text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase ml-2">
-              <span className="animate-[pulse_3s_ease-in-out_infinite]">
-                Manage
-              </span>
-              <span className="text-violet-400">•</span>
-              <span className="animate-[pulse_3s_ease-in-out_infinite] delay-700">
-                Monitor
-              </span>
-              <span className="text-violet-400">•</span>
-              <span className="animate-[pulse_3s_ease-in-out_infinite] delay-1000">
-                Grow
-              </span>
-            </div>
+    <div className="flex h-screen overflow-hidden relative selection:bg-violet-500/30 font-sans text-gray-100">
+      <div className="md:hidden fixed top-0 w-full z-40 p-4 flex justify-between items-center glass border-b-0">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-violet-600 to-black p-[1px]">
+            <img
+              src={PlanXImg}
+              alt="Logo"
+              className="w-full h-full rounded-lg object-cover"
+            />
           </div>
-
-          <ul className="space-y-4">
-            {menuItems.map((item) => (
-              <li
-                key={item.id}
-                onClick={() => {
-                  setActive(item.id);
-                  setError(null);
-                  setEditItem(null);
-                }}
-                className={`cursor-pointer font-medium text-lg p-3 rounded-xl transition-all flex items-center gap-3
-                                    ${
-                                      active === item.id
-                                        ? "bg-violet-100 text-violet-700"
-                                        : "text-gray-600 hover:text-violet-600 hover:bg-violet-50"
-                                    }
-                                `}
-              >
-                {item.icon}
-                <span>{item.title}</span>
-              </li>
-            ))}
-          </ul>
+          <span className="font-bold text-lg text-white tracking-wide">
+            PlanX
+          </span>
         </div>
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="text-gray-300 hover:text-white"
+        >
+          <Menu size={28} />
+        </button>
+      </div>
 
-        <div className="border-t border-gray-200 pt-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold">
-              {user?.name ? user.name[0].toUpperCase() : "U"}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
+
+      <div
+        className={`
+        fixed inset-y-0 left-0 z-50 w-72 p-4 transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]
+        ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 md:static md:inset-auto
+      `}
+      >
+        <div className="h-full glass rounded-3xl flex flex-col justify-between p-6">
+          <div>
+            <div className="mb-10 flex justify-between items-start">
+              <div>
+                <h1 className="text-3xl font-bold flex items-center gap-2 mb-2">
+                  <img
+                    src={PlanXImg}
+                    alt="PlanX Logo"
+                    className="w-16 h-16 rounded-lg object-contain hidden md:block"
+                  />
+                  <span className="tracking-tight">
+                    <span className="text-white">Plan</span>
+                    <span className="text-violet-600">X</span>
+                  </span>
+                </h1>
+
+                <div className="flex gap-1 text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase ml-2">
+                  <span className="animate-[pulse_3s_ease-in-out_infinite]">
+                    Manage
+                  </span>
+                  <span className="text-violet-400">•</span>
+                  <span className="animate-[pulse_3s_ease-in-out_infinite] delay-700">
+                    Monitor
+                  </span>
+                  <span className="text-violet-400">•</span>
+                  <span className="animate-[pulse_3s_ease-in-out_infinite] delay-1000">
+                    Grow
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="md:hidden text-gray-400 hover:text-red-500"
+              >
+                <X size={24} />
+              </button>
             </div>
-            <div>
-              <p className="font-bold text-gray-800">{user?.name || "User"}</p>
-              <p className="text-xs text-gray-400">{user?.email}</p>
-            </div>
+
+            <ul className="space-y-2">
+              {menuItems.map((item) => (
+                <li
+                  key={item.id}
+                  onClick={() => {
+                    setActive(item.id);
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`cursor-pointer font-medium p-3.5 rounded-2xl transition-all duration-300 flex items-center gap-4 group
+                  ${
+                    active === item.id
+                      ? "bg-violet-600 text-white shadow-lg shadow-violet-900/40 translate-x-1"
+                      : "text-gray-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <span
+                    className={`${
+                      active === item.id
+                        ? "text-white"
+                        : "text-gray-500 group-hover:text-white"
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span>{item.title}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-2 text-gray-500 hover:text-red-600 transition-colors font-medium w-full"
-          >
-            <LogOut size={20} /> Sign Out
-          </button>
+
+          <div className="pt-6 border-t border-white/10">
+            <div className="flex items-center gap-3 mb-4 p-2 rounded-xl hover:bg-white/5 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center text-white font-bold shadow-md">
+                {user?.name ? user.name[0].toUpperCase() : "U"}
+              </div>
+              <div className="overflow-hidden">
+                <p className="font-semibold text-sm truncate text-white">
+                  {user?.name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-2 text-gray-400 hover:text-red-400 transition-colors text-sm w-full px-2 font-medium"
+            >
+              <LogOut size={16} /> Sign Out
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 p-8 overflow-y-auto bg-[#fbfcff]">
-        {error && (
-          <p className="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-center font-bold animate-bounce">
-            {error}
-          </p>
-        )}
-        {displayData()}
+      <main className="flex-1 h-screen overflow-y-auto p-4 md:p-6 pt-20 md:pt-6 w-full custom-scrollbar">
+        <div className="max-w-7xl mx-auto space-y-8 pb-24">
+          {error && (
+            <div className="glass border-l-4 border-red-500 p-4 rounded-xl flex justify-between items-center text-red-200 animate-pulse">
+              <p>{error}</p>
+              <button onClick={() => setError(null)}>
+                <X size={16} />
+              </button>
+            </div>
+          )}
+          {displayData()}
+        </div>
       </main>
+
+      <AiAssistant />
     </div>
   );
 }
 
-// ==========================================
-// 1. DASHBOARD OVERVIEW COMPONENT
-// ==========================================
 const DashboardOverview = ({ editItem, setEditItem }) => {
-  const { totalIncome, totalExpenses, totalBalance, incomes, expenses } =
+  const { totalBalance, totalIncome, totalExpenses, incomes, expenses } =
     useGlobalContext();
   const [formType, setFormType] = useState("expense");
 
   const [filterType, setFilterType] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [dateRange, setDateRange] = useState("30");
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
   const getFilteredTransactions = () => {
     let allTransactions = [...incomes, ...expenses];
-
-    if (filterType !== "all") {
+    if (filterType !== "all")
       allTransactions = allTransactions.filter(
         (item) => item.type === filterType
       );
-    }
-
     if (dateRange !== "all") {
       const cutoffDate = moment().subtract(parseInt(dateRange), "days");
       allTransactions = allTransactions.filter((item) =>
         moment(item.date).isAfter(cutoffDate)
       );
     }
-
     allTransactions.sort((a, b) => {
       if (sortBy === "newest") return new Date(b.date) - new Date(a.date);
       if (sortBy === "oldest") return new Date(a.date) - new Date(b.date);
@@ -203,81 +256,87 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
       if (sortBy === "lowest") return a.amount - b.amount;
       return 0;
     });
-
     return allTransactions;
   };
 
   const filteredHistory = getFilteredTransactions();
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredHistory.slice(indexOfFirstItem, indexOfLastItem);
-
+  const currentItems = filteredHistory.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
-      <h2 className="text-3xl font-bold text-gray-800">Dashboard</h2>
-
-      <div className="grid grid-cols-3 gap-6">
-        <div className="bg-violet-600 text-white p-6 rounded-2xl shadow-lg transform hover:scale-[1.02] transition-transform">
-          <h3 className="text-lg opacity-90">Total Balance</h3>
-          <p className="text-4xl font-bold mt-2">₹{totalBalance()}</p>
-        </div>
-        <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-green-500">
-          <h3 className="text-gray-500 flex items-center gap-2">
-            <TrendingUp size={18} /> Total Income
-          </h3>
-          <p className="text-2xl font-bold text-green-600 mt-2">
-            +₹{totalIncome()}
-          </p>
-        </div>
-        <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-red-500">
-          <h3 className="text-gray-500 flex items-center gap-2">
-            <TrendingDown size={18} /> Total Expenses
-          </h3>
-          <p className="text-2xl font-bold text-red-600 mt-2">
-            -₹{totalExpenses()}
-          </p>
+    <div className="space-y-8 animate-fade-in-up">
+      <div className="flex justify-between items-end">
+        <div>
+          <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+            Overview
+          </h2>
+          <p className="text-gray-400 text-sm mt-1">Financial snapshot</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-8">
-        <div className="col-span-3 h-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-8 rounded-[30px] bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-900 text-white shadow-2xl shadow-violet-900/30 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-white/20 transition-all"></div>
+          <p className="text-violet-200 font-medium mb-1 flex items-center gap-2">
+            <CircleDollarSign size={18} /> Total Balance
+          </p>
+          <p className="text-4xl font-bold tracking-tight">₹{totalBalance()}</p>
+        </div>
+        <div className="glass-card p-6 flex flex-col justify-center border-l-4 border-green-500">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
+              <TrendingUp size={20} />
+            </div>
+            <span className="text-gray-400">Income</span>
+          </div>
+          <p className="text-2xl font-bold text-green-400">+₹{totalIncome()}</p>
+        </div>
+        <div className="glass-card p-6 flex flex-col justify-center border-l-4 border-red-500">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-500/20 rounded-lg text-red-400">
+              <TrendingDown size={20} />
+            </div>
+            <span className="text-gray-400">Expenses</span>
+          </div>
+          <p className="text-2xl font-bold text-red-400">-₹{totalExpenses()}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="lg:col-span-3 h-auto">
           <Chart />
         </div>
 
-        <div className="col-span-2 flex flex-col gap-6">
-          <div className="bg-white p-4 rounded-2xl shadow-lg border border-gray-100 h-fit">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-violet-800">Quick Add</h3>
-
-              <div className="flex bg-gray-100 rounded-lg p-1 border border-gray-200">
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="glass-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">Quick Add</h3>
+              <div className="flex bg-black/40 p-1 rounded-xl">
                 <button
                   onClick={() => setFormType("expense")}
-                  disabled={editItem !== null}
-                  className={`px-4 py-1.5 text-sm font-bold rounded-md transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     formType === "expense"
-                      ? "bg-red-500 text-white shadow-md"
-                      : "text-gray-500 hover:bg-gray-200"
+                      ? "bg-red-500/20 text-red-400 shadow-sm"
+                      : "text-gray-500 hover:text-gray-300"
                   }`}
                 >
                   Expense
                 </button>
                 <button
                   onClick={() => setFormType("income")}
-                  disabled={editItem !== null}
-                  className={`px-4 py-1.5 text-sm font-bold rounded-md transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     formType === "income"
-                      ? "bg-green-500 text-white shadow-md"
-                      : "text-gray-500 hover:bg-gray-200"
+                      ? "bg-green-500/20 text-green-400 shadow-sm"
+                      : "text-gray-500 hover:text-gray-300"
                   }`}
                 >
                   Income
                 </button>
               </div>
             </div>
-
             <TransactionForm
               type={formType}
               isDashboard={true}
@@ -285,51 +344,69 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
               setEditItem={setEditItem}
             />
           </div>
-
           <FinancialWisdomSlider />
         </div>
       </div>
 
       <div className="mt-8">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-gray-700">Recent History</h3>
-
-          <div className="flex gap-2">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+          <h3 className="text-xl font-bold text-white">Recent History</h3>
+          <div className="flex flex-wrap gap-2">
             <select
-              className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg p-2 focus:outline-none focus:border-violet-500"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
+              className="bg-white/5 border border-white/10 text-gray-300 text-xs rounded-lg p-2 focus:outline-none focus:border-violet-500"
             >
-              <option value="7">Last 7 Days</option>
-              <option value="30">Last 30 Days</option>
-              <option value="365">Last Year</option>
-              <option value="all">All Time</option>
+              <option value="7" className="bg-gray-900">
+                Last 7 Days
+              </option>
+              <option value="30" className="bg-gray-900">
+                Last 30 Days
+              </option>
+              <option value="365" className="bg-gray-900">
+                Last Year
+              </option>
+              <option value="all" className="bg-gray-900">
+                All Time
+              </option>
             </select>
-
             <select
-              className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg p-2 focus:outline-none focus:border-violet-500"
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
+              className="bg-white/5 border border-white/10 text-gray-300 text-xs rounded-lg p-2 focus:outline-none focus:border-violet-500"
             >
-              <option value="all">All Types</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
+              <option value="all" className="bg-gray-900">
+                All Types
+              </option>
+              <option value="income" className="bg-gray-900">
+                Income
+              </option>
+              <option value="expense" className="bg-gray-900">
+                Expense
+              </option>
             </select>
-
             <select
-              className="bg-white border border-gray-200 text-gray-600 text-sm rounded-lg p-2 focus:outline-none focus:border-violet-500"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
+              className="bg-white/5 border border-white/10 text-gray-300 text-xs rounded-lg p-2 focus:outline-none focus:border-violet-500"
             >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="highest">Highest Amount</option>
-              <option value="lowest">Lowest Amount</option>
+              <option value="newest" className="bg-gray-900">
+                Newest
+              </option>
+              <option value="oldest" className="bg-gray-900">
+                Oldest
+              </option>
+              <option value="highest" className="bg-gray-900">
+                Highest
+              </option>
+              <option value="lowest" className="bg-gray-900">
+                Lowest
+              </option>
             </select>
           </div>
         </div>
 
-        <div className="space-y-3 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
+        <div className="space-y-3 glass-card p-4 min-h-[400px]">
           {currentItems.length > 0 ? (
             currentItems.map((item) => (
               <TransactionItem
@@ -339,13 +416,10 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
               />
             ))
           ) : (
-            <div className="text-center py-10">
-              <p className="text-gray-400 font-medium">
-                No transactions match your filters.
-              </p>
+            <div className="text-center py-20 text-gray-500">
+              No transactions found.
             </div>
           )}
-
           <Pagination
             currentPage={currentPage}
             totalItems={filteredHistory.length}
@@ -358,45 +432,46 @@ const DashboardOverview = ({ editItem, setEditItem }) => {
   );
 };
 
-// ==========================================
-// 2. INCOME VIEW COMPONENT
-// ==========================================
 const IncomeView = ({ editItem, setEditItem }) => {
   const { incomes, totalIncome } = useGlobalContext();
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   const sortedIncomes = [...incomes].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedIncomes.slice(indexOfFirstItem, indexOfLastItem);
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const currentItems = sortedIncomes.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
-    <div className="flex flex-col gap-6">
-      <h2 className="text-3xl font-bold text-gray-800">Incomes</h2>
-      <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-green-500 w-full mb-4">
-        <h3 className="text-gray-500 flex items-center gap-2">
+    <div className="space-y-6 animate-fade-in-up">
+      <h2 className="text-3xl font-bold text-white">Incomes</h2>
+      <div className="glass-card p-6 border-l-4 border-green-500">
+        <h3 className="text-gray-400 flex items-center gap-2">
           <TrendingUp size={18} /> Total Income
         </h3>
-        <p className="text-3xl font-bold text-green-600 mt-2">
+        <p className="text-3xl font-bold text-green-400 mt-2">
           ₹{totalIncome()}
         </p>
       </div>
-      <div className="grid grid-cols-5 gap-8">
-        <div className="col-span-2">
-          <TransactionForm
-            type="income"
-            editItem={editItem}
-            setEditItem={setEditItem}
-          />
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="lg:col-span-2">
+          <div className="glass-card p-6">
+            <h3 className="text-xl font-bold mb-4 text-violet-400">
+              {editItem ? "Edit Income" : "Add Income"}
+            </h3>
+            <TransactionForm
+              type="income"
+              editItem={editItem}
+              setEditItem={setEditItem}
+            />
+          </div>
         </div>
-        <div className="col-span-3 space-y-3">
-          <h3 className="font-bold text-gray-600">Income History</h3>
+        <div className="lg:col-span-3 space-y-3">
+          <h3 className="font-bold text-gray-400 mb-2">Income History</h3>
           {currentItems.map((item) => (
             <TransactionItem
               key={item._id}
@@ -408,7 +483,7 @@ const IncomeView = ({ editItem, setEditItem }) => {
             currentPage={currentPage}
             totalItems={sortedIncomes.length}
             itemsPerPage={itemsPerPage}
-            paginate={paginate}
+            paginate={setCurrentPage}
           />
         </div>
       </div>
@@ -416,53 +491,40 @@ const IncomeView = ({ editItem, setEditItem }) => {
   );
 };
 
-// ==========================================
-// 3. EXPENSE VIEW COMPONENT
-// ==========================================
 const ExpenseView = ({ editItem, setEditItem }) => {
   const { expenses, totalExpenses, totalIncome, totalBalance } =
     useGlobalContext();
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   const sortedExpenses = [...expenses].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedExpenses.slice(indexOfFirstItem, indexOfLastItem);
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const currentItems = sortedExpenses.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const getCategoryIcon = (category) => {
     switch (category.toLowerCase()) {
       case "food":
-        return <Utensils size={18} />;
-      case "groceries":
-        return <Utensils size={18} />;
+        return <Utensils size={16} />;
       case "rent":
-        return <Home size={18} />;
+        return <Home size={16} />;
       case "entertainment":
-        return <Film size={18} />;
+        return <Film size={16} />;
       case "shopping":
-        return <ShoppingBag size={18} />;
-      case "clothing":
-        return <ShoppingBag size={18} />;
-      case "education":
-        return <BookOpen size={18} />;
-      case "health":
-        return <HeartPulse size={18} />;
-      case "travel":
-        return <Car size={18} />;
-      case "fuel":
-        return <Car size={18} />;
+        return <ShoppingBag size={16} />;
       case "bills":
-        return <Zap size={18} />;
-      case "investments":
-        return <TrendingUp size={18} />;
+        return <Zap size={16} />;
+      case "travel":
+        return <Car size={16} />;
+      case "health":
+        return <HeartPulse size={16} />;
+      case "education":
+        return <BookOpen size={16} />;
       default:
-        return <CircleDollarSign size={18} />;
+        return <CircleDollarSign size={16} />;
     }
   };
 
@@ -470,127 +532,100 @@ const ExpenseView = ({ editItem, setEditItem }) => {
     acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
     return acc;
   }, {});
-
   const topCategories = Object.entries(categoryTotals)
-    .sort(([, amountA], [, amountB]) => amountB - amountA)
+    .sort(([, a], [, b]) => b - a)
     .slice(0, 4);
 
+  const savingsPercentage =
+    totalIncome() > 0 ? (totalBalance() / totalIncome()) * 100 : 0;
+  const savingsColor =
+    savingsPercentage < 10
+      ? "bg-red-500"
+      : savingsPercentage < 20
+      ? "bg-yellow-500"
+      : "bg-green-500";
+
   return (
-    <div className="flex flex-col gap-6">
-      <h2 className="text-3xl font-bold text-gray-800">Expenses</h2>
-      <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-red-500 w-full mb-4">
-        <h3 className="text-gray-500 flex items-center gap-2">
+    <div className="space-y-6 animate-fade-in-up">
+      <h2 className="text-3xl font-bold text-white">Expenses</h2>
+      <div className="glass-card p-6 border-l-4 border-red-500">
+        <h3 className="text-gray-400 flex items-center gap-2">
           <TrendingDown size={18} /> Total Expenses
         </h3>
-        <p className="text-3xl font-bold text-red-600 mt-2">
+        <p className="text-3xl font-bold text-red-400 mt-2">
           ₹{totalExpenses()}
         </p>
       </div>
 
-      <div className="grid grid-cols-5 gap-8">
-        <div className="col-span-2 flex flex-col gap-6">
-          <TransactionForm
-            type="expense"
-            editItem={editItem}
-            setEditItem={setEditItem}
-          />
-
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 flex flex-col justify-between">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-lg font-bold text-gray-700">
-                  Savings Target
-                </h3>
-                <p className="text-xs text-gray-400">Target: 20% of Income</p>
-              </div>
-              <div className="bg-green-100 p-2 rounded-lg text-green-600">
-                <TrendingUp size={24} />
-              </div>
-            </div>
-            {(() => {
-              const savingsPercentage =
-                totalIncome() > 0
-                  ? ((totalBalance() / totalIncome()) * 100).toFixed(0)
-                  : 0;
-              let colorClass = "bg-green-500";
-              let message = "Great job!";
-              if (savingsPercentage < 10) {
-                colorClass = "bg-red-500";
-                message = "Critical Low";
-              } else if (savingsPercentage < 20) {
-                colorClass = "bg-yellow-500";
-                message = "Needs Improvement";
-              }
-
-              return (
-                <>
-                  <div className="flex items-end gap-2 mb-2">
-                    <span className="text-4xl font-bold text-gray-800">
-                      {savingsPercentage}%
-                    </span>
-                    <span className="text-sm text-gray-500 mb-1">Saved</span>
-                  </div>
-                  <div className="w-full bg-gray-100 rounded-full h-3 mb-3">
-                    <div
-                      className={`h-3 rounded-full transition-all duration-1000 ${colorClass}`}
-                      style={{ width: `${Math.max(savingsPercentage, 0)}%` }}
-                    ></div>
-                  </div>
-                  <p
-                    className={`text-sm font-semibold ${
-                      savingsPercentage < 20 ? "text-red-500" : "text-green-600"
-                    }`}
-                  >
-                    {message}
-                  </p>
-                </>
-              );
-            })()}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="glass-card p-6">
+            <h3 className="text-xl font-bold mb-4 text-violet-400">
+              {editItem ? "Edit Expense" : "Add Expense"}
+            </h3>
+            <TransactionForm
+              type="expense"
+              editItem={editItem}
+              setEditItem={setEditItem}
+            />
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <h3 className="text-lg font-bold text-gray-700 mb-5">
-              Where your money went
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-bold text-gray-200 mb-1">
+              Savings Target
             </h3>
-            <div className="space-y-5">
-              {topCategories.length > 0 ? (
-                topCategories.map(([cat, amount], index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="bg-violet-50 text-violet-600 p-3 rounded-full shadow-sm">
-                      {getCategoryIcon(cat)}
-                    </div>
+            <p className="text-xs text-gray-500 mb-4">Goal: 20% of Income</p>
+            <div className="flex items-end gap-2 mb-2">
+              <span className="text-4xl font-bold text-white">
+                {savingsPercentage.toFixed(0)}%
+              </span>
+              <span className="text-sm text-gray-400 mb-1">Saved</span>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-2 mb-2">
+              <div
+                className={`h-2 rounded-full transition-all duration-1000 ${savingsColor}`}
+                style={{
+                  width: `${Math.max(0, Math.min(savingsPercentage, 100))}%`,
+                }}
+              ></div>
+            </div>
+          </div>
 
-                    <div className="flex-1">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="capitalize text-gray-700 font-bold">
-                          {cat}
-                        </span>
-                        <span className="font-bold text-gray-800">
-                          ₹{amount}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-100 rounded-full h-2">
-                        <div
-                          className="bg-violet-500 h-2 rounded-full opacity-80"
-                          style={{
-                            width: `${(amount / totalExpenses()) * 100}%`,
-                          }}
-                        ></div>
-                      </div>
+          <div className="glass-card p-6">
+            <h3 className="text-lg font-bold text-gray-200 mb-4">
+              Top Spending
+            </h3>
+            <div className="space-y-4">
+              {topCategories.map(([cat, amount], idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <div className="bg-violet-500/20 text-violet-300 p-2 rounded-lg">
+                    {getCategoryIcon(cat)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between text-xs mb-1 text-gray-300">
+                      <span className="capitalize font-semibold">{cat}</span>
+                      <span>₹{amount}</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-1.5">
+                      <div
+                        className="bg-violet-500 h-1.5 rounded-full opacity-80"
+                        style={{
+                          width: `${(amount / totalExpenses()) * 100}%`,
+                        }}
+                      ></div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="text-gray-400 text-sm italic">
-                  Add expenses to see breakdown
-                </p>
+                </div>
+              ))}
+              {topCategories.length === 0 && (
+                <p className="text-gray-500 text-sm italic">No data yet.</p>
               )}
             </div>
           </div>
         </div>
 
-        <div className="col-span-3 space-y-3">
-          <h3 className="font-bold text-gray-600">Expense History</h3>
+        <div className="lg:col-span-3 space-y-3">
+          <h3 className="font-bold text-gray-400 mb-2">Expense History</h3>
           {currentItems.map((item) => (
             <TransactionItem
               key={item._id}
@@ -602,7 +637,7 @@ const ExpenseView = ({ editItem, setEditItem }) => {
             currentPage={currentPage}
             totalItems={sortedExpenses.length}
             itemsPerPage={itemsPerPage}
-            paginate={paginate}
+            paginate={setCurrentPage}
           />
         </div>
       </div>
@@ -610,9 +645,6 @@ const ExpenseView = ({ editItem, setEditItem }) => {
   );
 };
 
-// ==========================================
-// 4. INVESTMENT VIEW
-// ==========================================
 const InvestmentView = ({ editItem, setEditItem }) => {
   const { expenses } = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
@@ -623,39 +655,45 @@ const InvestmentView = ({ editItem, setEditItem }) => {
   );
   const totalInvested = investments.reduce((acc, curr) => acc + curr.amount, 0);
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = investments.slice(indexOfFirstItem, indexOfLastItem);
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const currentItems = investments.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
-    <div className="flex flex-col gap-6">
-      <h2 className="text-3xl font-bold text-gray-800">
-        Investments Portfolio
-      </h2>
-      <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-yellow-500 w-full mb-4">
-        <h3 className="text-gray-500 flex items-center gap-2">
+    <div className="space-y-6 animate-fade-in-up">
+      <h2 className="text-3xl font-bold text-white">Portfolio</h2>
+      <div className="glass-card p-6 border-l-4 border-yellow-500">
+        <h3 className="text-gray-400 flex items-center gap-2">
           <PieChart size={18} /> Total Invested
         </h3>
-        <p className="text-3xl font-bold text-yellow-600 mt-2">
+        <p className="text-3xl font-bold text-yellow-400 mt-2">
           ₹{totalInvested}
         </p>
       </div>
-      <div className="grid grid-cols-5 gap-8">
-        <div className="col-span-2">
-          <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 mb-4 text-sm text-blue-700">
-            Tip: To add an investment, add an <b>Expense</b> and select the{" "}
-            <b>Investments</b> category.
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="lg:col-span-2">
+          <div className="glass-card p-6">
+            <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl mb-6 text-sm text-blue-300">
+              Tip: Add an Expense with category <b>"Investments"</b> to track it
+              here.
+            </div>
+            <h3 className="text-xl font-bold mb-4 text-violet-400">
+              Add Investment
+            </h3>
+
+            <TransactionForm
+              type="expense"
+              defaultCategory="investments"
+              editItem={editItem}
+              setEditItem={setEditItem}
+            />
           </div>
-          <TransactionForm
-            type="expense"
-            defaultCategory="investments"
-            editItem={editItem}
-            setEditItem={setEditItem}
-          />
         </div>
-        <div className="col-span-3 space-y-3">
-          <h3 className="font-bold text-gray-600">Investment History</h3>
+
+        <div className="lg:col-span-3 space-y-3">
+          <h3 className="font-bold text-gray-400 mb-2">Investment History</h3>
           {currentItems.length > 0 ? (
             currentItems.map((item) => (
               <TransactionItem
@@ -665,13 +703,15 @@ const InvestmentView = ({ editItem, setEditItem }) => {
               />
             ))
           ) : (
-            <p className="text-gray-400 italic">No investments found.</p>
+            <div className="text-center py-10 text-gray-500">
+              No investments recorded yet.
+            </div>
           )}
           <Pagination
             currentPage={currentPage}
             totalItems={investments.length}
             itemsPerPage={itemsPerPage}
-            paginate={paginate}
+            paginate={setCurrentPage}
           />
         </div>
       </div>
@@ -679,9 +719,6 @@ const InvestmentView = ({ editItem, setEditItem }) => {
   );
 };
 
-// ==========================================
-// 5. BUDGET VIEW (UPDATED WITH SUMMARY)
-// ==========================================
 const BudgetView = () => {
   const { budgets, addBudget, deleteBudget, expenses } = useGlobalContext();
   const [category, setCategory] = useState("");
@@ -695,197 +732,195 @@ const BudgetView = () => {
     setLimit("");
   };
 
-  const getProgress = (budgetCategory, budgetLimit) => {
+  const getProgress = (cat, limit) => {
     const spent = expenses
-      .filter((t) => t.category === budgetCategory)
+      .filter((t) => t.category === cat)
       .reduce((acc, curr) => acc + curr.amount, 0);
-
-    const percentage = Math.min((spent / budgetLimit) * 100, 100);
-
-    let color = "bg-green-500";
-    let textColor = "text-green-600";
-    if (percentage > 80) {
-      color = "bg-red-500";
-      textColor = "text-red-600";
-    } else if (percentage > 50) {
-      color = "bg-yellow-500";
-      textColor = "text-yellow-600";
-    }
-
-    return { spent, percentage, color, textColor };
+    const percent = Math.min((spent / limit) * 100, 100);
+    const color =
+      percent > 100
+        ? "bg-red-500"
+        : percent > 80
+        ? "bg-red-400"
+        : percent > 50
+        ? "bg-yellow-400"
+        : "bg-green-400";
+    return { spent, percent, color };
   };
 
-  // --- TOTAL SUMMARY HELPER ---
-  const totalBudgetLimit = budgets.reduce((acc, b) => acc + b.limit, 0);
-
-  const totalBudgetSpent = budgets.reduce((acc, b) => {
-    const catSpent = expenses
-      .filter((t) => t.category === b.category)
-      .reduce((total, curr) => total + curr.amount, 0);
-    return acc + catSpent;
+  const totalLimit = budgets.reduce((acc, b) => acc + b.limit, 0);
+  const totalSpent = budgets.reduce((acc, b) => {
+    return (
+      acc +
+      expenses
+        .filter((t) => t.category === b.category)
+        .reduce((sum, curr) => sum + curr.amount, 0)
+    );
   }, 0);
-
-  const totalRemaining = totalBudgetLimit - totalBudgetSpent;
-  const totalPercentage =
-    totalBudgetLimit > 0
-      ? ((totalBudgetSpent / totalBudgetLimit) * 100).toFixed(0)
-      : 0;
+  const totalRemaining = totalLimit - totalSpent;
 
   return (
-    <div className="flex flex-col gap-6">
-      <h2 className="text-3xl font-bold text-gray-800">Smart Budgets</h2>
+    <div className="space-y-6 animate-fade-in-up">
+      <h2 className="text-3xl font-bold text-white">Smart Budgets</h2>
 
-      <div className="grid grid-cols-5 gap-8">
-        {/* LEFT COLUMN: FORM + SUMMARY */}
-        <div className="col-span-2">
-          <div className="sticky top-4 flex flex-col gap-6">
-            {/* ADD BUDGET FORM */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h3 className="text-xl font-bold mb-4 text-violet-800">
-                Set Monthly Limit
-              </h3>
-              <form className="space-y-4" onSubmit={handleAddBudget}>
-                <select
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  required
-                >
-                  <option value="" disabled>
-                    Select Category
-                  </option>
-                  <option value="rent">Rent</option>
-                  <option value="food">Food</option>
-                  <option value="bills">Bills</option>
-                  <option value="entertainment">Entertainment</option>
-                  <option value="shopping">Shopping</option>
-                  <option value="fuel">Fuel</option>
-                  <option value="travel">Travel</option>
-                  <option value="health">Health</option>
-                </select>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="glass-card p-6">
+            <h3 className="text-xl font-bold mb-4 text-violet-400">
+              Set Monthly Limit
+            </h3>
+            <form onSubmit={handleAddBudget} className="space-y-4">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="input-field appearance-none"
+                required
+              >
+                <option value="" disabled className="bg-gray-900">
+                  Select Category
+                </option>
+                <option value="food" className="bg-gray-900">
+                  Food
+                </option>
+                <option value="rent" className="bg-gray-900">
+                  Rent
+                </option>
+                <option value="bills" className="bg-gray-900">
+                  Bills
+                </option>
+                <option value="entertainment" className="bg-gray-900">
+                  Entertainment
+                </option>
+                <option value="shopping" className="bg-gray-900">
+                  Shopping
+                </option>
+                <option value="fuel" className="bg-gray-900">
+                  Fuel
+                </option>
+                <option value="travel" className="bg-gray-900">
+                  Travel
+                </option>
+                <option value="health" className="bg-gray-900">
+                  Health
+                </option>
+              </select>
+              <input
+                type="number"
+                value={limit}
+                onChange={(e) => setLimit(e.target.value)}
+                placeholder="Limit Amount (₹)"
+                className="input-field"
+                required
+              />
+              <button className="btn-primary w-full flex items-center justify-center gap-2">
+                <Plus size={18} /> Set Budget
+              </button>
+            </form>
+          </div>
 
-                <input
-                  type="number"
-                  placeholder="Limit Amount (e.g. 5000)"
-                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
-                  value={limit}
-                  onChange={(e) => setLimit(e.target.value)}
-                  required
-                />
-
-                <button className="w-full text-white bg-violet-600 hover:bg-violet-700 p-3 rounded-xl font-bold shadow-lg transition-colors flex items-center justify-center gap-2">
-                  <Plus size={18} /> Set Budget
-                </button>
-              </form>
-            </div>
-
-            {/* TOTAL BUDGET SNAPSHOT */}
-            {budgets.length > 0 && (
-              <div className="bg-gradient-to-br from-violet-600 to-indigo-600 p-6 rounded-2xl shadow-lg text-white">
-                <h3 className="text-lg font-semibold opacity-90 mb-4 flex items-center gap-2">
-                  <Target size={20} /> Overall Status
+          {budgets.length > 0 && (
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-lg">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold flex items-center gap-2">
+                  <Target size={20} /> Status
                 </h3>
-
-                <div className="flex justify-between items-end mb-2">
-                  <div>
-                    <p className="text-sm opacity-80">Total Budget</p>
-                    <p className="text-2xl font-bold">₹{totalBudgetLimit}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm opacity-80">Spent</p>
-                    <p className="text-2xl font-bold text-red-200">
-                      ₹{totalBudgetSpent}
-                    </p>
-                  </div>
+              </div>
+              <div className="flex justify-between items-end mb-2">
+                <div>
+                  <p className="text-xs opacity-70">Total Budget</p>
+                  <p className="text-2xl font-bold">₹{totalLimit}</p>
                 </div>
-
-                <div className="w-full bg-black/20 rounded-full h-2 mb-4">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-1000 ${
-                      totalPercentage > 100 ? "bg-red-400" : "bg-green-400"
-                    }`}
-                    style={{ width: `${Math.min(totalPercentage, 100)}%` }}
-                  ></div>
-                </div>
-
-                <div className="bg-white/10 p-3 rounded-xl flex justify-between items-center backdrop-blur-sm border border-white/10">
-                  <span className="text-sm font-medium">Safe to Spend</span>
-                  <span
-                    className={`text-xl font-bold ${
-                      totalRemaining < 0 ? "text-red-300" : "text-green-300"
-                    }`}
-                  >
-                    {totalRemaining < 0 ? "-" : ""}₹{Math.abs(totalRemaining)}
-                  </span>
+                <div className="text-right">
+                  <p className="text-xs opacity-70">Spent</p>
+                  <p className="text-xl font-bold text-red-200">
+                    ₹{totalSpent}
+                  </p>
                 </div>
               </div>
-            )}
-          </div>
+              <div className="w-full bg-black/20 rounded-full h-2 mb-4">
+                <div
+                  className={`h-2 rounded-full transition-all duration-1000 ${
+                    totalSpent > totalLimit ? "bg-red-300" : "bg-green-300"
+                  }`}
+                  style={{
+                    width: `${Math.min((totalSpent / totalLimit) * 100, 100)}%`,
+                  }}
+                ></div>
+              </div>
+              <div className="bg-white/10 p-3 rounded-xl flex justify-between items-center backdrop-blur-sm border border-white/10">
+                <span className="text-sm font-medium">Remaining</span>
+                <span
+                  className={`text-lg font-bold ${
+                    totalRemaining < 0 ? "text-red-200" : "text-green-200"
+                  }`}
+                >
+                  {totalRemaining < 0 ? "-" : ""}₹{Math.abs(totalRemaining)}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* RIGHT: BUDGET LIST */}
-        <div className="col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4">
           {budgets.length > 0 ? (
             budgets.map((budget) => {
-              const { spent, percentage, color, textColor } = getProgress(
+              const { spent, percent, color } = getProgress(
                 budget.category,
                 budget.limit
               );
-
               return (
                 <div
                   key={budget._id}
-                  className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-3"
+                  className="glass-card p-5 flex flex-col gap-3 group hover:bg-white/5 transition-colors"
                 >
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <span className="p-2 bg-gray-100 rounded-lg text-gray-600 capitalize font-bold">
-                        {budget.category}
-                      </span>
-                    </div>
+                    <span className="bg-violet-500/20 text-violet-300 px-3 py-1 rounded-lg text-sm font-bold capitalize">
+                      {budget.category}
+                    </span>
                     <button
                       onClick={() => deleteBudget(budget._id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      className="text-gray-500 hover:text-red-400 transition-colors"
                     >
                       <Trash size={16} />
                     </button>
                   </div>
-
                   <div className="flex justify-between items-end">
                     <div>
-                      <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+                      <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
                         Spent / Limit
                       </p>
-                      <p className="text-lg font-bold text-gray-700">
+                      <p className="text-lg font-bold text-gray-200">
                         ₹{spent}{" "}
-                        <span className="text-gray-400 text-sm">
+                        <span className="text-gray-500 text-sm">
                           / ₹{budget.limit}
                         </span>
                       </p>
                     </div>
-                    <div className={`text-sm font-bold ${textColor}`}>
-                      {percentage.toFixed(0)}% Used
-                    </div>
+                    <span
+                      className={`text-sm font-bold ${
+                        percent >= 100 ? "text-red-400" : "text-gray-300"
+                      }`}
+                    >
+                      {percent.toFixed(0)}%
+                    </span>
                   </div>
-
-                  <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                  <div className="w-full bg-white/5 rounded-full h-2">
                     <div
-                      className={`h-full ${color} transition-all duration-1000 ease-out`}
-                      style={{ width: `${percentage}%` }}
+                      className={`h-2 rounded-full transition-all duration-1000 ${color}`}
+                      style={{ width: `${percent}%` }}
                     ></div>
                   </div>
-
-                  {percentage >= 100 && (
-                    <p className="text-xs text-red-500 font-bold flex items-center gap-1">
-                      <TrendingDown size={14} /> Budget Exceeded!
+                  {percent >= 100 && (
+                    <p className="text-xs text-red-400 font-bold flex items-center gap-1">
+                      <TrendingDown size={12} /> Budget Exceeded!
                     </p>
                   )}
                 </div>
               );
             })
           ) : (
-            <div className="text-center py-10 text-gray-400">
-              <p>No budgets set yet. Start planning!</p>
+            <div className="text-center py-10 text-gray-500">
+              No budgets set.
             </div>
           )}
         </div>
@@ -894,13 +929,8 @@ const BudgetView = () => {
   );
 };
 
-// ==========================================
-// SHARED COMPONENTS (Slider, Form, Item, Pagination)
-// ==========================================
-
 const FinancialWisdomSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const slides = [
     { id: 1, image: "/slider/img1.png" },
     { id: 2, image: "/slider/img2.png" },
@@ -909,24 +939,29 @@ const FinancialWisdomSlider = () => {
   ];
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % slides.length);
-    }, 3000);
+    const timer = setInterval(
+      () => setCurrentIndex((prev) => (prev + 1) % slides.length),
+      4000
+    );
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   return (
-    <div className="relative h-80 w-full rounded-2xl overflow-hidden shadow-lg group bg-white border border-gray-100">
+    <div className="relative h-64 w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
+      <div className="absolute inset-0 bg-gray-800"></div>
       <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-1000 transform group-hover:scale-105"
         style={{ backgroundImage: `url(${slides[currentIndex].image})` }}
-      ></div>
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1">
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      </div>
+
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1.5">
         {slides.map((_, idx) => (
           <div
             key={idx}
             className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${
-              idx === currentIndex ? "w-6 bg-violet-600" : "w-2 bg-gray-300"
+              idx === currentIndex ? "w-6 bg-violet-500" : "w-2 bg-white/30"
             }`}
           ></div>
         ))}
@@ -935,7 +970,33 @@ const FinancialWisdomSlider = () => {
   );
 };
 
-// --- UPDATED FORM WITH RECURRING CHECKBOX ---
+const Pagination = ({ currentPage, totalItems, itemsPerPage, paginate }) => {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex justify-center items-center gap-4 mt-4">
+      <button
+        onClick={() => paginate(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-white"
+      >
+        Previous
+      </button>
+      <span className="text-xs text-gray-400">
+        Page {currentPage} of {totalPages}
+      </span>
+      <button
+        onClick={() => paginate(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-white"
+      >
+        Next
+      </button>
+    </div>
+  );
+};
+
 const TransactionForm = ({
   type,
   defaultCategory = "",
@@ -943,7 +1004,7 @@ const TransactionForm = ({
   editItem,
   setEditItem,
 }) => {
-  const { addIncome, updateTransaction } = useGlobalContext();
+  const { addIncome, addExpense, updateTransaction } = useGlobalContext();
   const today = moment().format("YYYY-MM-DD");
 
   const [inputState, setInputState] = useState({
@@ -953,7 +1014,7 @@ const TransactionForm = ({
     category: defaultCategory,
     description: "",
     type: type,
-    isRecurring: false, // NEW
+    isRecurring: false,
   });
 
   useEffect(() => {
@@ -965,283 +1026,268 @@ const TransactionForm = ({
         category: editItem.category,
         description: editItem.description,
         type: editItem.type,
-        isRecurring: editItem.isRecurring || false, // Pre-fill
+        isRecurring: editItem.isRecurring || false,
       });
     } else {
-      setInputState((prev) => ({ ...prev, type: type, isRecurring: false }));
+      setInputState((prev) => ({
+        ...prev,
+        type,
+        category: defaultCategory,
+        isRecurring: false,
+      }));
     }
-  }, [editItem, type]);
+  }, [editItem, type, defaultCategory]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Prepare Data (Add recurringFrequency logic)
-    const transactionData = {
+    const data = {
       ...inputState,
       recurringFrequency: inputState.isRecurring ? "monthly" : "none",
     };
-
     if (editItem) {
-      updateTransaction(editItem._id, transactionData);
+      updateTransaction(editItem._id, data);
       setEditItem(null);
     } else {
-      addIncome(transactionData);
+      type === "income" ? addIncome(data) : addExpense(data);
     }
-
-    // Reset Form
     setInputState({
       title: "",
       amount: "",
       date: today,
       category: defaultCategory,
       description: "",
-      type: type,
-      isRecurring: false,
-    });
-  };
-
-  const cancelEdit = () => {
-    setEditItem(null);
-    setInputState({
-      title: "",
-      amount: "",
-      date: today,
-      category: defaultCategory,
-      description: "",
-      type: type,
+      type,
       isRecurring: false,
     });
   };
 
   return (
-    <div
-      className={isDashboard ? "" : "bg-white rounded-2xl shadow-lg p-6 h-fit"}
-    >
-      {!isDashboard && (
-        <h3 className="text-xl font-bold mb-4 text-violet-800">
-          {editItem
-            ? "Edit Transaction"
-            : `New ${type === "income" ? "Income" : "Expense"}`}
-        </h3>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-4">
       {editItem && (
-        <div className="mb-3 flex justify-between items-center bg-yellow-50 p-2 rounded-lg border border-yellow-200">
-          <span className="text-xs text-yellow-700 font-bold">
+        <div className="flex justify-between items-center bg-yellow-500/10 p-2 rounded-lg border border-yellow-500/30">
+          <span className="text-xs text-yellow-500 font-bold">
             Editing: {editItem.title}
           </span>
           <button
-            onClick={cancelEdit}
-            className="text-yellow-700 hover:text-red-500"
+            type="button"
+            onClick={() => setEditItem(null)}
+            className="text-yellow-500 hover:text-white"
           >
-            <X size={16} />
+            <X size={14} />
           </button>
         </div>
       )}
-      <form className="space-y-3" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Title"
-          className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
-          value={inputState.title}
-          onChange={(e) =>
-            setInputState({ ...inputState, title: e.target.value })
-          }
-        />
+      <input
+        type="text"
+        value={inputState.title}
+        onChange={(e) =>
+          setInputState({ ...inputState, title: e.target.value })
+        }
+        placeholder="Title"
+        className="input-field"
+        required
+      />
+      <div className="flex gap-3">
         <input
           type="number"
-          placeholder="Amount"
-          className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
           value={inputState.amount}
           onChange={(e) =>
             setInputState({ ...inputState, amount: e.target.value })
           }
+          placeholder="Amount"
+          className="input-field"
+          required
         />
-        <select
-          className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
-          value={inputState.category}
-          onChange={(e) =>
-            setInputState({ ...inputState, category: e.target.value })
-          }
-        >
-          <option value="" disabled>
-            Select Category
-          </option>
-          {inputState.type === "expense" ? (
-            <>
-              <option value="rent">Rent</option>
-              <option value="food">Food</option>
-              <option value="bills">Bills</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="clothing">Clothing</option>
-              <option value="education">Education</option>
-              <option value="health">Health</option>
-              <option value="shopping">Shopping</option>
-              <option value="fuel">Fuel</option>
-              <option value="groceries">Groceries</option>
-              <option value="investments">Investments</option>
-              <option value="travel">Travel</option>
-              <option value="other">Other</option>
-            </>
-          ) : (
-            <>
-              <option value="salary">Salary</option>
-              <option value="freelancing">Freelancing</option>
-              <option value="investments">Investments</option>
-              <option value="stocks">Stocks</option>
-              <option value="bitcoin">Bitcoin</option>
-              <option value="bank">Bank Transfer</option>
-              <option value="youtube">Youtube</option>
-              <option value="other">Other</option>
-            </>
-          )}
-        </select>
-        <textarea
-          placeholder="Add A Description"
-          className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500 resize-none"
-          rows="2"
-          value={inputState.description}
-          onChange={(e) =>
-            setInputState({ ...inputState, description: e.target.value })
-          }
-        ></textarea>
         <input
           type="date"
-          className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-violet-500"
           value={inputState.date}
           onChange={(e) =>
             setInputState({ ...inputState, date: e.target.value })
           }
+          className="input-field"
+          required
         />
+      </div>
+      <select
+        value={inputState.category}
+        onChange={(e) =>
+          setInputState({ ...inputState, category: e.target.value })
+        }
+        className="input-field appearance-none"
+        required
+      >
+        <option value="" disabled className="bg-gray-900">
+          Select Category
+        </option>
+        {type === "expense" ? (
+          <>
+            <option value="rent" className="bg-gray-900">
+              Rent
+            </option>
+            <option value="food" className="bg-gray-900">
+              Food
+            </option>
+            <option value="bills" className="bg-gray-900">
+              Bills
+            </option>
+            <option value="entertainment" className="bg-gray-900">
+              Entertainment
+            </option>
+            <option value="clothing" className="bg-gray-900">
+              Clothing
+            </option>
+            <option value="education" className="bg-gray-900">
+              Education
+            </option>
+            <option value="health" className="bg-gray-900">
+              Health
+            </option>
+            <option value="shopping" className="bg-gray-900">
+              Shopping
+            </option>
+            <option value="fuel" className="bg-gray-900">
+              Fuel
+            </option>
+            <option value="groceries" className="bg-gray-900">
+              Groceries
+            </option>
+            <option value="investments" className="bg-gray-900">
+              Investments
+            </option>
+            <option value="travel" className="bg-gray-900">
+              Travel
+            </option>
+            <option value="other" className="bg-gray-900">
+              Other
+            </option>
+          </>
+        ) : (
+          <>
+            <option value="salary" className="bg-gray-900">
+              Salary
+            </option>
+            <option value="freelancing" className="bg-gray-900">
+              Freelancing
+            </option>
+            <option value="investments" className="bg-gray-900">
+              Investments
+            </option>
+            <option value="stocks" className="bg-gray-900">
+              Stocks
+            </option>
+            <option value="bitcoin" className="bg-gray-900">
+              Bitcoin
+            </option>
+            <option value="bank" className="bg-gray-900">
+              Bank Transfer
+            </option>
+            <option value="youtube" className="bg-gray-900">
+              Youtube
+            </option>
+            <option value="other" className="bg-gray-900">
+              Other
+            </option>
+          </>
+        )}
+      </select>
+      <textarea
+        value={inputState.description}
+        onChange={(e) =>
+          setInputState({ ...inputState, description: e.target.value })
+        }
+        placeholder="Description (Optional)"
+        rows="2"
+        className="input-field resize-none"
+      ></textarea>
 
-        {/* --- RECURRING CHECKBOX --- */}
-        <div className="flex items-center gap-2 px-1">
-          <input
-            type="checkbox"
-            id="recurring"
-            className="w-4 h-4 text-violet-600 rounded focus:ring-violet-500 cursor-pointer"
-            checked={inputState.isRecurring}
-            onChange={(e) =>
-              setInputState({ ...inputState, isRecurring: e.target.checked })
-            }
-          />
-          <label
-            htmlFor="recurring"
-            className="text-gray-600 text-sm font-medium cursor-pointer flex items-center gap-1"
-          >
-            <Repeat size={14} /> Recurring Monthly
-          </label>
-        </div>
-
-        <button
-          className={`w-full text-white p-3 rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2 ${
-            editItem
-              ? "bg-yellow-500 hover:bg-yellow-600 shadow-yellow-200"
-              : inputState.type === "income"
-              ? "bg-green-600 hover:bg-green-700 shadow-green-200"
-              : "bg-red-600 hover:bg-red-700 shadow-red-200"
-          }`}
+      <div className="flex items-center gap-2 pl-1">
+        <input
+          type="checkbox"
+          id="recurring"
+          checked={inputState.isRecurring}
+          onChange={(e) =>
+            setInputState({ ...inputState, isRecurring: e.target.checked })
+          }
+          className="accent-violet-600 w-4 h-4 cursor-pointer"
+        />
+        <label
+          htmlFor="recurring"
+          className="text-sm text-gray-400 cursor-pointer select-none"
         >
-          {editItem ? <Pencil size={18} /> : <Plus size={18} />}
-          {editItem
-            ? "Update Transaction"
-            : `Add ${inputState.type === "income" ? "Income" : "Expense"}`}
-        </button>
-      </form>
-    </div>
+          Recurring Monthly
+        </label>
+      </div>
+
+      <button
+        className={`w-full py-3 rounded-xl font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
+          editItem
+            ? "bg-yellow-500 hover:bg-yellow-600 text-black"
+            : "btn-primary"
+        }`}
+      >
+        {editItem ? <Pencil size={18} /> : <Plus size={18} />}
+        {editItem
+          ? "Update Transaction"
+          : `Add ${type === "income" ? "Income" : "Expense"}`}
+      </button>
+    </form>
   );
 };
 
 const TransactionItem = ({ item, setEditItem }) => {
   const { deleteTransaction } = useGlobalContext();
+  const Icon = item.type === "income" ? TrendingUp : TrendingDown;
+  const color = item.type === "income" ? "text-green-400" : "text-red-400";
+  const bgColor =
+    item.type === "income"
+      ? "bg-green-500/10 border-green-500/20"
+      : "bg-red-500/10 border-red-500/20";
+
   return (
-    <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="flex justify-between items-center p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
       <div className="flex items-center gap-4">
         <div
-          className={`p-3 rounded-full ${
-            item.type === "income"
-              ? "bg-green-100 text-green-600"
-              : "bg-red-100 text-red-600"
-          }`}
+          className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${bgColor} ${color}`}
         >
-          <IndianRupee size={20} />
+          <Icon size={20} />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <p className="font-bold text-gray-800">{item.title}</p>
+            <h4 className="font-bold text-gray-200">{item.title}</h4>
             {item.isRecurring && (
-              <span className="bg-violet-100 text-violet-600 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-                <Repeat size={10} /> Monthly
+              <span className="bg-violet-500/20 text-violet-300 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                <Repeat size={8} /> Monthly
               </span>
             )}
           </div>
-          <div className="flex gap-4 text-xs text-gray-400">
+          <p className="text-xs text-gray-500 flex gap-2 mt-0.5">
             <span>{moment(item.date).format("DD MMM YYYY")}</span>
-            <span>{item.description.substring(0, 20)}...</span>
-          </div>
+            <span className="capitalize">• {item.category}</span>
+          </p>
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        <p
-          className={`font-bold mr-2 ${
-            item.type === "income" ? "text-green-600" : "text-red-600"
-          }`}
-        >
+      <div className="flex items-center gap-4">
+        <span className={`font-bold text-lg ${color}`}>
           {item.type === "income" ? "+" : "-"}₹{item.amount}
-        </p>
-        <button
-          onClick={() => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-            setEditItem(item);
-          }}
-          className="bg-yellow-100 text-yellow-600 p-2 rounded-full hover:bg-yellow-200 transition-colors shadow-sm"
-          title="Edit Transaction"
-        >
-          <Pencil size={16} />
-        </button>
-        <button
-          onClick={() => deleteTransaction(item._id)}
-          className="bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-200 transition-colors shadow-sm"
-          title="Delete Transaction"
-        >
-          <Trash size={16} />
-        </button>
+        </span>
+        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              setEditItem(item);
+            }}
+            className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-yellow-400"
+          >
+            <Pencil size={16} />
+          </button>
+          <button
+            onClick={() => deleteTransaction(item._id)}
+            className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-red-400"
+          >
+            <Trash size={16} />
+          </button>
+        </div>
       </div>
-    </div>
-  );
-};
-
-// --- PAGINATION COMPONENT ---
-const Pagination = ({ currentPage, totalItems, itemsPerPage, paginate }) => {
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  if (totalPages <= 1) return null;
-
-  return (
-    <div className="flex justify-center items-center gap-4 mt-6">
-      <button
-        onClick={() => paginate(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
-          currentPage === 1
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-violet-100 text-violet-600 hover:bg-violet-200"
-        }`}
-      >
-        Previous
-      </button>
-      <span className="text-gray-600 font-medium text-sm">
-        Page {currentPage} of {totalPages}
-      </span>
-      <button
-        onClick={() => paginate(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
-          currentPage === totalPages
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-            : "bg-violet-100 text-violet-600 hover:bg-violet-200"
-        }`}
-      >
-        Next
-      </button>
     </div>
   );
 };

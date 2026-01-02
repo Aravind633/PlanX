@@ -31,7 +31,7 @@ const TransactionSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      maxLength: 200, // Kept your existing length
+      maxLength: 200,
       trim: true,
     },
     userId: {
@@ -40,7 +40,6 @@ const TransactionSchema = new mongoose.Schema(
       required: true,
     },
 
-    // --- NEW FIELDS FOR FEATURE 5 (RECURRING TRANSACTIONS) ---
     isRecurring: {
       type: Boolean,
       default: false,
@@ -51,7 +50,7 @@ const TransactionSchema = new mongoose.Schema(
       default: "none",
     },
     lastProcessed: {
-      type: Date, // Tracks when the auto-add last happened
+      type: Date,
       default: null,
     },
   },

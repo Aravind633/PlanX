@@ -7,10 +7,9 @@ const GlobalContext = React.createContext();
 export const GlobalProvider = ({ children }) => {
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
-  const [budgets, setBudgets] = useState([]); // <--- NEW: Budget State
+  const [budgets, setBudgets] = useState([]);
   const [error, setError] = useState(null);
 
-  // 1. Authentication Helper
   const getConfig = () => {
     const token = sessionStorage.getItem("token");
     return {
@@ -19,8 +18,6 @@ export const GlobalProvider = ({ children }) => {
       },
     };
   };
-
-  // 2. API Calls (Transactions)
 
   const addIncome = async (income) => {
     try {
@@ -31,7 +28,6 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
-  // Get All Transactions
   const getIncomes = async () => {
     try {
       const response = await axios.get(
@@ -39,7 +35,6 @@ export const GlobalProvider = ({ children }) => {
         getConfig()
       );
 
-      // Separate data into Income and Expense arrays
       const incomeList = response.data.filter((t) => t.type === "income");
       const expenseList = response.data.filter((t) => t.type === "expense");
 
@@ -50,7 +45,6 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
-  // Delete Transaction
   const deleteTransaction = async (id) => {
     try {
       await axios.delete(`${BASE_URL}delete-transaction/${id}`, getConfig());
@@ -60,7 +54,6 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
-  // Update Transaction
   const updateTransaction = async (id, transaction) => {
     try {
       await axios.put(
@@ -68,19 +61,16 @@ export const GlobalProvider = ({ children }) => {
         transaction,
         getConfig()
       );
-      getIncomes(); // Refresh the list to show changes immediately
+      getIncomes();
     } catch (err) {
       setError(err.response?.data?.message);
     }
   };
 
-  // =================================
-  // 3. NEW: BUDGET API CALLS
-  // =================================
   const addBudget = async (budget) => {
     try {
       await axios.post(`${BASE_URL}add-budget`, budget, getConfig());
-      getBudgets(); // Refresh list
+      getBudgets();
     } catch (err) {
       setError(err.response?.data?.message);
     }
@@ -104,7 +94,19 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
-  // 4. Calculations
+  const getAIHelp = async (prompt) => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}ai/ask`,
+        { prompt },
+        getConfig()
+      );
+      return response.data.response;
+    } catch (err) {
+      setError(err.response?.data?.message || "AI Server Error");
+      return "Sorry, I couldn't connect to the AI at the moment.";
+    }
+  };
 
   const totalIncome = () => {
     return incomes.reduce((acc, curr) => acc + curr.amount, 0);
@@ -139,11 +141,13 @@ export const GlobalProvider = ({ children }) => {
         transactionHistory,
         error,
         setError,
-        // --- NEW EXPORTS ---
+
         addBudget,
         getBudgets,
         deleteBudget,
         budgets,
+
+        getAIHelp,
       }}
     >
       {children}
