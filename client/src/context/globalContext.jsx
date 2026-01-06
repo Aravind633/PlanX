@@ -10,6 +10,7 @@ export const GlobalProvider = ({ children }) => {
   const [budgets, setBudgets] = useState([]);
   const [error, setError] = useState(null);
 
+  // Helper for Authorization Headers
   const getConfig = () => {
     const token = sessionStorage.getItem("token");
     return {
@@ -19,16 +20,7 @@ export const GlobalProvider = ({ children }) => {
     };
   };
 
-  const addIncome = async (income) => {
-    try {
-      await axios.post(`${BASE_URL}add-transaction`, income, getConfig());
-      getIncomes();
-    } catch (err) {
-      setError(err.response?.data?.message);
-    }
-  };
-
-  const getIncomes = async () => {
+  const fetchTransactions = async () => {
     try {
       const response = await axios.get(
         `${BASE_URL}get-transactions`,
@@ -45,10 +37,31 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
+  const addIncome = async (income) => {
+    try {
+      await axios.post(`${BASE_URL}add-transaction`, income, getConfig());
+      fetchTransactions();
+    } catch (err) {
+      setError(err.response?.data?.message);
+    }
+  };
+
+  const addExpense = async (expense) => {
+    try {
+      await axios.post(`${BASE_URL}add-transaction`, expense, getConfig());
+      fetchTransactions();
+    } catch (err) {
+      setError(err.response?.data?.message);
+    }
+  };
+
+  const getIncomes = () => fetchTransactions();
+  const getExpenses = () => fetchTransactions();
+
   const deleteTransaction = async (id) => {
     try {
       await axios.delete(`${BASE_URL}delete-transaction/${id}`, getConfig());
-      getIncomes();
+      fetchTransactions();
     } catch (err) {
       setError(err.response?.data?.message);
     }
@@ -61,7 +74,7 @@ export const GlobalProvider = ({ children }) => {
         transaction,
         getConfig()
       );
-      getIncomes();
+      fetchTransactions();
     } catch (err) {
       setError(err.response?.data?.message);
     }
@@ -94,6 +107,9 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
+  // =========================================
+  // AI ASSISTANT
+  // =========================================
   const getAIHelp = async (prompt) => {
     try {
       const response = await axios.post(
@@ -108,6 +124,9 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
+  // =========================================
+  // CALCULATIONS
+  // =========================================
   const totalIncome = () => {
     return incomes.reduce((acc, curr) => acc + curr.amount, 0);
   };
@@ -129,25 +148,34 @@ export const GlobalProvider = ({ children }) => {
   return (
     <GlobalContext.Provider
       value={{
+        // Transaction Actions
         addIncome,
+        addExpense,
         getIncomes,
-        incomes,
-        expenses,
+        getExpenses,
         deleteTransaction,
         updateTransaction,
+
+        // Data
+        incomes,
+        expenses,
+
+        // Calculations
         totalIncome,
         totalExpenses,
         totalBalance,
         transactionHistory,
-        error,
-        setError,
 
+        // Budgets
         addBudget,
         getBudgets,
         deleteBudget,
         budgets,
 
+        // AI & Utils
         getAIHelp,
+        error,
+        setError,
       }}
     >
       {children}

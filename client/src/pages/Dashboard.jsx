@@ -33,12 +33,17 @@ function Dashboard() {
   const [active, setActive] = useState(1);
   const [editItem, setEditItem] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { getIncomes, getBudgets, error, setError } = useGlobalContext();
+
+  // FIX 1: Added getExpenses to the destructuring
+  const { getIncomes, getExpenses, getBudgets, error, setError } =
+    useGlobalContext();
+
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user"));
 
   useEffect(() => {
     getIncomes();
+    getExpenses(); // FIX 2: Added getExpenses() call here
     getBudgets();
   }, []);
 
