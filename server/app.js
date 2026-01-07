@@ -50,7 +50,6 @@ const allowedOrigins = [
   "http://localhost:5000", // Self-reference
   // Production URLs (Update these after deploying frontend)
   "https://planx-frontend.onrender.com",
-  "https://planx.vercel.app",
 ];
 
 app.use(
