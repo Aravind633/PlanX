@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import axios from "axios";
+import { getBaseUrl } from "../utils/config";
 
-const BASE_URL = "http://localhost:5000/api/v1/";
 const GlobalContext = React.createContext();
 
 export const GlobalProvider = ({ children }) => {
@@ -23,7 +23,7 @@ export const GlobalProvider = ({ children }) => {
   const fetchTransactions = async () => {
     try {
       const response = await axios.get(
-        `${BASE_URL}get-transactions`,
+        `${getBaseUrl()}/get-transactions`,
         getConfig()
       );
 
@@ -39,7 +39,7 @@ export const GlobalProvider = ({ children }) => {
 
   const addIncome = async (income) => {
     try {
-      await axios.post(`${BASE_URL}add-transaction`, income, getConfig());
+      await axios.post(`${getBaseUrl()}/add-transaction`, income, getConfig()); // <--- Updated
       fetchTransactions();
     } catch (err) {
       setError(err.response?.data?.message);
@@ -48,7 +48,7 @@ export const GlobalProvider = ({ children }) => {
 
   const addExpense = async (expense) => {
     try {
-      await axios.post(`${BASE_URL}add-transaction`, expense, getConfig());
+      await axios.post(`${getBaseUrl()}/add-transaction`, expense, getConfig()); // <--- Updated
       fetchTransactions();
     } catch (err) {
       setError(err.response?.data?.message);
@@ -60,7 +60,10 @@ export const GlobalProvider = ({ children }) => {
 
   const deleteTransaction = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}delete-transaction/${id}`, getConfig());
+      await axios.delete(
+        `${getBaseUrl()}/delete-transaction/${id}`,
+        getConfig()
+      );
       fetchTransactions();
     } catch (err) {
       setError(err.response?.data?.message);
@@ -70,7 +73,7 @@ export const GlobalProvider = ({ children }) => {
   const updateTransaction = async (id, transaction) => {
     try {
       await axios.put(
-        `${BASE_URL}update-transaction/${id}`,
+        `${getBaseUrl()}/update-transaction/${id}`,
         transaction,
         getConfig()
       );
@@ -82,7 +85,7 @@ export const GlobalProvider = ({ children }) => {
 
   const addBudget = async (budget) => {
     try {
-      await axios.post(`${BASE_URL}add-budget`, budget, getConfig());
+      await axios.post(`${getBaseUrl()}/add-budget`, budget, getConfig()); // <--- Updated
       getBudgets();
     } catch (err) {
       setError(err.response?.data?.message);
@@ -91,7 +94,10 @@ export const GlobalProvider = ({ children }) => {
 
   const getBudgets = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}get-budgets`, getConfig());
+      const response = await axios.get(
+        `${getBaseUrl()}/get-budgets`,
+        getConfig()
+      );
       setBudgets(response.data);
     } catch (err) {
       setError(err.response?.data?.message);
@@ -100,20 +106,19 @@ export const GlobalProvider = ({ children }) => {
 
   const deleteBudget = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}delete-budget/${id}`, getConfig());
+      await axios.delete(`${getBaseUrl()}/delete-budget/${id}`, getConfig()); // <--- Updated
       getBudgets();
     } catch (err) {
       setError(err.response?.data?.message);
     }
   };
 
-  // =========================================
   // AI ASSISTANT
-  // =========================================
+
   const getAIHelp = async (prompt) => {
     try {
       const response = await axios.post(
-        `${BASE_URL}ai/ask`,
+        `${getBaseUrl()}/ai/ask`,
         { prompt },
         getConfig()
       );
@@ -124,9 +129,7 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
-  // =========================================
   // CALCULATIONS
-  // =========================================
   const totalIncome = () => {
     return incomes.reduce((acc, curr) => acc + curr.amount, 0);
   };

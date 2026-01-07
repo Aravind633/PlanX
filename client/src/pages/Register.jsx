@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { getBaseUrl } from "../utils/config";
 
 function Register() {
   const [inputState, setInputState] = useState({
@@ -14,7 +15,9 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/v1/register", inputState);
+      // Uses dynamic URL instead of localhost
+      await axios.post(`${getBaseUrl()}/register`, inputState);
+
       alert("Registration Successful! Please Login.");
       navigate("/login");
     } catch (error) {
