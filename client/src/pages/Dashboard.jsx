@@ -34,7 +34,6 @@ function Dashboard() {
   const [editItem, setEditItem] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // FIX 1: Added getExpenses to the destructuring
   const { getIncomes, getExpenses, getBudgets, error, setError } =
     useGlobalContext();
 
@@ -43,7 +42,7 @@ function Dashboard() {
 
   useEffect(() => {
     getIncomes();
-    getExpenses(); // FIX 2: Added getExpenses() call here
+    getExpenses();
     getBudgets();
   }, []);
 
