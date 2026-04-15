@@ -1,5 +1,6 @@
 /* 1. Google Fonts MUST be first (before Tailwind) */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 
 /* 2. Tailwind Import */
 @import "tailwindcss";
@@ -7,6 +8,61 @@
 /* 3. Theme Configuration */
 @theme {
   --font-inter: "Inter", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Inter", sans-serif;
+  --font-headline: "Space Grotesk", sans-serif;
+
+  --color-tertiary-container: #de4bf4;
+  --color-primary: #ba9eff;
+  --color-primary-fixed-dim: #a27cff;
+  --color-error-container: #a70138;
+  --color-on-error-container: #ffb2b9;
+  --color-primary-dim: #8455ef;
+  --color-on-secondary: #120076;
+  --color-surface-variant: #262626;
+  --color-on-background: #ffffff;
+  --color-primary-container: #ae8dff;
+  --color-on-primary-fixed-variant: #370086;
+  --color-background: #0e0e0e;
+  --color-surface: #0e0e0e;
+  --color-surface-tint: #ba9eff;
+  --color-tertiary-dim: #ec63ff;
+  --color-surface-bright: #2c2c2c;
+  --color-surface-container-low: #131313;
+  --color-surface-container-high: #1f1f1f;
+  --color-on-error: #490013;
+  --color-inverse-surface: #f9f9f9;
+  --color-on-tertiary-fixed: #300038;
+  --color-tertiary: #ec63ff;
+  --color-surface-container-highest: #262626;
+  --color-on-secondary-container: #cecbff;
+  --color-on-primary: #39008c;
+  --color-secondary-fixed-dim: #c0bdff;
+  --color-inverse-primary: #6e3bd7;
+  --color-surface-dim: #0e0e0e;
+  --color-on-surface-variant: #ababab;
+  --color-on-tertiary-container: #19001e;
+  --color-secondary-dim: #645efb;
+  --color-inverse-on-surface: #555555;
+  --color-on-primary-container: #2b006e;
+  --color-outline-variant: #484848;
+  --color-secondary: #9492ff;
+  --color-error: #ff6e84;
+  --color-on-secondary-fixed-variant: #3e32d5;
+  --color-on-tertiary-fixed-variant: #660075;
+  --color-secondary-fixed: #cfcdff;
+  --color-surface-container-lowest: #000000;
+  --color-on-tertiary: #3d0047;
+  --color-primary-fixed: #ae8dff;
+  --color-on-primary-fixed: #000000;
+  --color-outline: #757575;
+  --color-error-dim: #d73357;
+  --color-secondary-container: #3323cc;
+  --color-on-secondary-fixed: #2000b0;
+  --color-on-surface: #ffffff;
+  --color-surface-container: #191919;
+  --color-tertiary-fixed-dim: #ef6eff;
+  --color-tertiary-fixed: #f487ff;
 }
 
 /* 4. Global Styles */
@@ -56,3 +112,8 @@ body {
 .btn-primary {
   @apply bg-violet-600 hover:bg-violet-500 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg shadow-violet-900/20 active:scale-95;
 }
+
+.neon-text-gradient { background: linear-gradient(to right, #ba9eff, #ec63ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.ambient-orb { filter: blur(120px); pointer-events: none; position: absolute; border-radius: 9999px; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+

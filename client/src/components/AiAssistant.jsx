@@ -3,6 +3,8 @@ import { useGlobalContext } from "../context/globalContext";
 import { Send, X, Loader, User, Bot, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
+import { useLocation, useNavigate } from "react-router-dom";
+
 function AiAssistant() {
   const { getAIHelp, expenses, incomes } = useGlobalContext();
   const [prompt, setPrompt] = useState("");
@@ -11,6 +13,15 @@ function AiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
 
   const messagesEndRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (sessionStorage.getItem("pendingAction") === "openAIChat") {
+      setIsOpen(true);
+      sessionStorage.removeItem("pendingAction");
+    }
+  }, []);
 
   const BOT_ICON = "/bot_icon.jpeg";
 

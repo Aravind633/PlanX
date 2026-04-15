@@ -21,7 +21,7 @@ function Login() {
 
       sessionStorage.setItem("token", data.token);
       sessionStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/");
+      navigate("/dashboard");
       window.location.reload();
     } catch (error) {
       alert(error.response?.data?.message || "Login failed");
