@@ -1,9 +1,11 @@
 # PlanX – AI-Powered Personal Finance Platform
+
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Click_Here-violet?style=for-the-badge&logo=render)](https://planx-frontend.onrender.com/)
 
-### 🔗 **Live Link:** [https://planx-frontend.onrender.com/login](https://planx-frontend.onrender.com/login)
+### 🔗 **Live Link:** [https://planx-frontend.onrender.com/](https://planx-frontend.onrender.com)
 
 ---
+
 **PlanX** is a next-generation financial management application engineered to empower users with real-time tracking, intelligent data visualization, and personalized AI guidance. Built on the **MERN Stack**, it features a high-performance **Responsive UI** and integrates **Google's Gemini API** to provide context-aware financial advice.
 
 ---
