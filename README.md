@@ -1,5 +1,5 @@
 # PlanX – AI-Powered Personal Finance Platform
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Click_Here-violet?style=for-the-badge&logo=render)](https://planx-frontend.onrender.com/login)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Click_Here-violet?style=for-the-badge&logo=render)](https://planx-frontend.onrender.com/)
 
 ### 🔗 **Live Link:** [https://planx-frontend.onrender.com/login](https://planx-frontend.onrender.com/login)
 
