@@ -94,10 +94,10 @@ function AiAssistant() {
                 User Question: "${userQuestion}"
 
                 INSTRUCTIONS:
-                1. IF the user greets you (e.g., "Hi", "Hello"), simply reply: "Hello! I have your latest financial data ready. How can I help you today?"
-                2. DO NOT blurt out their balance or spending analysis unless they explicitly ask for it.
-                3. WHEN they ask about money, use the specific numbers provided above to give advice.
-                4. Keep answers short (under 3 sentences) and encouraging.
+                1. Critically analyze the User Question. If they are asking about their finances, answer accurately using ONLY the REAL-TIME USER DATA provided above.
+                2. If the user is MERELY greeting you (e.g., "Hi", "Hello") without a question, politely greet them back and ask how you can help.
+                3. Do NOT use a default greeting if the user is asking a financial question.
+                4. Keep answers short (under 3 sentences) and encouraging. DO NOT list all their data unless asked.
             `;
 
       const answer = await getAIHelp(smartPrompt);
