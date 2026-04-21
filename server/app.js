@@ -10,13 +10,20 @@ require("dotenv").config();
 const PORT = process.env.PORT || 5000;
 
 // Define allowed origins
+// const allowedOrigins = [
+//   "http://localhost:3000",
+//   "http://localhost:5173",
+//   "http://localhost:5000",
+
+//   "https://planx-frontend.onrender.com",
+// ];
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
-  "http://localhost:5000",
-
   "https://planx-frontend.onrender.com",
-];
+  "http://13.233.124.149",    
+  process.env.FRONTEND_URL       
+].filter(Boolean); 
 
 app.use(
   cors({
@@ -38,7 +45,7 @@ app.use(
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("API is running successfully. 🚀");
+  res.send("API is running successfully.");
 });
 
 readdirSync("./routes").map((route) => {
