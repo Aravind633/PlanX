@@ -1,7 +1,7 @@
 
 export const getBaseUrl = () => {
   if (window.location.hostname === "planx-financial-assistant.duckdns.org") {
-    return "http://planx-financial-assistant.duckdns.org:5000/api/v1"; 
+    return "https://planx-financial-assistant.duckdns.org/api/v1"; 
   }
   // 1. If running on your AWS EC2 server
   if (window.location.hostname === "13.233.124.149") {
