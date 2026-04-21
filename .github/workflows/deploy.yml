@@ -1,0 +1,55 @@
+name: Deploy PlanX to AWS ECR
+
+# 1. This tells GitHub to run this script ONLY when you push to the main branch
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      # 2. Grab the latest code from your repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 3. Use the keys you just saved to log into your AWS account
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      # 4. Unlock the ECR Vaults
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 5. Build and Push the Backend Image
+      - name: Build, tag, and push Backend to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: planx-backend
+          IMAGE_TAG: latest
+        run: |
+          # Navigate to the server folder, build the image, and tag it with the AWS URI
+          cd server
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          # Push it to the vault
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # 6. Build and Push the Frontend Image
+      - name: Build, tag, and push Frontend to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: planx-frontend
+          IMAGE_TAG: latest
+        run: |
+          # Navigate to the client folder, build the image, and tag it with the AWS URI
+          cd client
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          # Push it to the vault
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
