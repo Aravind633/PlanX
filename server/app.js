@@ -21,7 +21,8 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
   "https://planx-frontend.onrender.com",
-  "http://13.233.124.149",    
+  "http://13.233.124.149", 
+  "http://planx-financial-assistant.duckdns.org",
   process.env.FRONTEND_URL       
 ].filter(Boolean); 
 
